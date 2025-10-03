@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://superclaude.org/schemas/flag-translation.schema.json",
+  "title": "Flag Translation Schema",
+  "description": "SuperClaude フラグ翻訳データのスキーマ定義",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "翻訳データのバージョン（セマンティックバージョニング）"
+    },
+    "flags": {
+      "type": "object",
+      "description": "フラグ翻訳の定義",
+      "patternProperties": {
+        "^[a-z][a-z0-9-]*$": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "フラグの説明"
+            },
+            "alias": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$",
+              "description": "フラグのエイリアス（短縮形）"
+            },
+            "example": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "使用例"
+            }
+          },
+          "required": [
+            "description"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "flags"
+  ],
+  "additionalProperties": false
+}

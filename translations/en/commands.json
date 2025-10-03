@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "commands": {
+    "build": {
+      "description": "Project builder with framework detection",
+      "category": "Development",
+      "arguments": {
+        "target": "Specify build target (e.g., production, development, staging)"
+      }
+    },
+    "implement": {
+      "description": "Assist with feature implementation and code generation",
+      "category": "Development",
+      "arguments": {
+        "feature": "Specify feature name to implement"
+      }
+    },
+    "analyze": {
+      "description": "Codebase analysis and insight generation",
+      "category": "Analysis"
+    },
+    "test": {
+      "description": "Generate and execute test cases",
+      "category": "Testing",
+      "arguments": {
+        "scope": "Test scope (e.g., unit, integration, e2e)"
+      }
+    }
+  }
+}
