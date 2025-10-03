@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "flags": {
+    "plan": {
+      "description": "Display detailed plan before execution",
+      "example": "claude /build --plan"
+    },
+    "uc": {
+      "description": "Reduce token usage by 30-50% (ultracompressed)",
+      "alias": "ultracompressed",
+      "example": "claude /implement --uc feature-name"
+    },
+    "think": {
+      "description": "Display thinking process",
+      "example": "claude /analyze --think"
+    },
+    "persona-architect": {
+      "description": "Act as architect persona",
+      "example": "claude /build --persona-architect"
+    },
+    "persona-developer": {
+      "description": "Act as developer persona",
+      "example": "claude /implement --persona-developer"
+    }
+  }
+}

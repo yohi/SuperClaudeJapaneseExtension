@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "errors": {
+    "COMMAND_NOT_FOUND": "コマンドが見つかりません",
+    "FLAG_NOT_FOUND": "フラグが見つかりません",
+    "TRANSLATION_NOT_FOUND": "翻訳が見つかりません",
+    "FILE_NOT_FOUND": "ファイルが見つかりません",
+    "PARSE_ERROR": "解析エラーが発生しました",
+    "INIT_FAILED": "初期化に失敗しました",
+    "RESOURCE_NOT_FOUND": "リソースが見つかりません",
+    "INVALID_COMMAND": "無効なコマンドです",
+    "NO_CANDIDATES_FOUND": "候補が見つかりません"
+  }
+}

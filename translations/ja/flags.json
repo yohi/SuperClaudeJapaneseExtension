@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "flags": {
+    "plan": {
+      "description": "実行前に詳細な計画を表示",
+      "example": "claude /build --plan"
+    },
+    "uc": {
+      "description": "トークン使用を30-50%削減（ultracompressed）",
+      "alias": "ultracompressed",
+      "example": "claude /implement --uc feature-name"
+    },
+    "think": {
+      "description": "思考プロセスを表示",
+      "example": "claude /analyze --think"
+    },
+    "persona-architect": {
+      "description": "アーキテクトペルソナとして動作",
+      "example": "claude /build --persona-architect"
+    },
+    "persona-developer": {
+      "description": "開発者ペルソナとして動作",
+      "example": "claude /implement --persona-developer"
+    }
+  }
+}

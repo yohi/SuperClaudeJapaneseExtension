@@ -28,8 +28,11 @@ export type {
 
 export { LogLevel } from './types';
 
-// TODO: コンポーネントの実装後に追加
-// export { I18nManager } from './i18n/i18nManager';
+// i18nコンポーネント
+export { I18nManager } from './i18n/i18nManager';
+export { TranslationLoader } from './i18n/translationLoader';
+
+// TODO: 他のコンポーネントの実装後に追加
 // export { HintProvider } from './hint/hintProvider';
 // export { CompletionEngine } from './completion/completionEngine';
 // export { MetadataParser } from './metadata/metadataParser';

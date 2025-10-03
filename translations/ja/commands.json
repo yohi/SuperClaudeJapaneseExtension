@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "commands": {
+    "build": {
+      "description": "フレームワーク検出付きプロジェクトビルダー",
+      "category": "開発",
+      "arguments": {
+        "target": "ビルド対象を指定（例: production, development, staging）"
+      }
+    },
+    "implement": {
+      "description": "機能実装とコード生成を支援",
+      "category": "開発",
+      "arguments": {
+        "feature": "実装する機能名を指定"
+      }
+    },
+    "analyze": {
+      "description": "コードベースの分析とインサイト生成",
+      "category": "分析"
+    },
+    "test": {
+      "description": "テストケースの生成と実行",
+      "category": "テスト",
+      "arguments": {
+        "scope": "テスト対象の範囲（例: unit, integration, e2e）"
+      }
+    }
+  }
+}
