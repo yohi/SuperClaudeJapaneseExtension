@@ -2,7 +2,7 @@
  * SuperClaude Japanese Extension
  * エントリーポイント
  */
-export type { SupportedLocale, Result, TranslationResource, CommandTranslation, FlagTranslation, CommandMetadata, FlagMetadata, HintOutput, CompletionItem, CompletionOptions, CacheEntry, TranslateOptions, I18nError, TranslationNotFoundError, LoadError, ValidationError, HintError, CompletionError, ParseError, } from './types';
+export type { SupportedLocale, Result, TranslationResource, CommandTranslation, FlagTranslation, CommandMetadata, FlagMetadata, HintOutput, CompletionItem, CompletionCandidate, CompletionOptions, CacheEntry, TranslateOptions, I18nError, TranslationNotFoundError, LoadError, ValidationError, HintError, CompletionError, ParseError, } from './types';
 export { LogLevel } from './types';
 export { I18nManager } from './i18n/i18nManager';
 export { TranslationLoader } from './i18n/translationLoader';

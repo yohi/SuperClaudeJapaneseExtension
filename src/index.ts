@@ -14,6 +14,7 @@ export type {
   FlagMetadata,
   HintOutput,
   CompletionItem,
+  CompletionCandidate,
   CompletionOptions,
   CacheEntry,
   TranslateOptions,
