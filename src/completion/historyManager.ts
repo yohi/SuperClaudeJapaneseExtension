@@ -13,12 +13,53 @@ import type {
 } from '../types';
 
 /**
+ * シンプルなPromiseベースのミューテックス
+ * 非同期操作の直列化を保証
+ */
+class Mutex {
+  private locked = false;
+  private queue: Array<() => void> = [];
+
+  /**
+   * ロックを取得
+   * ロックが解放されるまで待機
+   */
+  async acquire(): Promise<void> {
+    if (!this.locked) {
+      this.locked = true;
+      return;
+    }
+
+    return new Promise<void>((resolve) => {
+      this.queue.push(resolve);
+    });
+  }
+
+  /**
+   * ロックを解放
+   * 待機中の次の操作にロックを渡す
+   */
+  release(): void {
+    const next = this.queue.shift();
+    if (next) {
+      next();
+    } else {
+      this.locked = false;
+    }
+  }
+}
+
+/**
  * 履歴マネージャークラス
+ *
+ * 注意: このクラスは内部的にミューテックスを使用して、
+ * 並行呼び出しに対してMap操作を直列化します。
  */
 export class HistoryManager {
   private historyFile: string;
   private history: Map<string, HistoryEntry> = new Map();
   private maxHistorySize: number;
+  private mutex: Mutex = new Mutex();
 
   /**
    * コンストラクタ
@@ -32,34 +73,47 @@ export class HistoryManager {
 
   /**
    * コマンドを履歴に記録
+   *
+   * 並行性保護: このメソッドはミューテックスで保護されており、
+   * 複数の並行呼び出しが直列化されます。
+   *
    * @param command コマンド名
    * @returns 記録結果
    */
   async recordCommand(command: string): Promise<Result<void, HistoryError>> {
-    const existing = this.history.get(command);
+    // ミューテックスを取得（並行呼び出しを直列化）
+    await this.mutex.acquire();
 
-    if (existing) {
-      // 既存エントリを更新
-      existing.frequency += 1;
-      existing.lastUsed = Date.now();
-    } else {
-      // 新規エントリを追加
-      this.history.set(command, {
-        command,
-        frequency: 1,
-        lastUsed: Date.now(),
-      });
+    try {
+      // this.historyへの全てのアクセスをロック内で実行
+      const existing = this.history.get(command);
+
+      if (existing) {
+        // 既存エントリを更新
+        existing.frequency += 1;
+        existing.lastUsed = Date.now();
+      } else {
+        // 新規エントリを追加
+        this.history.set(command, {
+          command,
+          frequency: 1,
+          lastUsed: Date.now(),
+        });
+      }
+
+      // 履歴サイズの制限（evictionもロック内で実行）
+      if (this.history.size > this.maxHistorySize) {
+        this.evictOldestEntry();
+      }
+
+      return {
+        ok: true,
+        value: undefined,
+      };
+    } finally {
+      // 必ずロックを解放（例外発生時も確実に実行）
+      this.mutex.release();
     }
-
-    // 履歴サイズの制限
-    if (this.history.size > this.maxHistorySize) {
-      this.evictOldestEntry();
-    }
-
-    return {
-      ok: true,
-      value: undefined,
-    };
   }
 
   /**
@@ -117,15 +171,23 @@ export class HistoryManager {
 
   /**
    * 履歴をファイルに保存
+   *
+   * 並行性保護: このメソッドはミューテックスで保護されており、
+   * 保存中の履歴読み取りの一貫性を保証します。
+   *
    * @returns 保存結果
    */
   async save(): Promise<Result<void, HistoryError>> {
+    await this.mutex.acquire();
+
     try {
+      // this.historyの読み取りをロック内で実行
       const data = {
         version: '1.0.0',
         entries: Array.from(this.history.values()),
       };
 
+      // ファイルI/Oもロック内で実行（一貫性を保証）
       await fs.writeFile(this.historyFile, JSON.stringify(data, null, 2));
 
       return {
@@ -141,14 +203,22 @@ export class HistoryManager {
             error instanceof Error ? error.message : 'Unknown error occurred',
         },
       };
+    } finally {
+      this.mutex.release();
     }
   }
 
   /**
    * 履歴をファイルから読み込み
+   *
+   * 並行性保護: このメソッドはミューテックスで保護されており、
+   * 読み込み中の履歴変更（clear/set）の一貫性を保証します。
+   *
    * @returns 読み込み結果
    */
   async load(): Promise<Result<void, HistoryError>> {
+    await this.mutex.acquire();
+
     try {
       // ファイルが存在しない場合は空の履歴として扱う
       if (!fsSync.existsSync(this.historyFile)) {
@@ -164,7 +234,7 @@ export class HistoryManager {
         entries: HistoryEntry[];
       };
 
-      // 履歴を復元
+      // this.historyの変更（clear/set）をロック内で実行
       this.history.clear();
       for (const entry of data.entries) {
         this.history.set(entry.command, entry);
@@ -183,6 +253,8 @@ export class HistoryManager {
             error instanceof Error ? error.message : 'Unknown error occurred',
         },
       };
+    } finally {
+      this.mutex.release();
     }
   }
 

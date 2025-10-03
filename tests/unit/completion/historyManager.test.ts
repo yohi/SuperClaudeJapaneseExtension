@@ -159,4 +159,65 @@ describe('HistoryManager', () => {
       expect(newHistoryManager.getHistory()).toEqual([]);
     });
   });
+
+  describe('concurrency', () => {
+    it('should handle concurrent recordCommand calls correctly', async () => {
+      // 100回の並行呼び出しを実行
+      const promises = [];
+      for (let i = 0; i < 100; i++) {
+        promises.push(historyManager.recordCommand('concurrent-test'));
+      }
+
+      await Promise.all(promises);
+
+      const history = historyManager.getHistory();
+      const entry = history.find(
+        (h: HistoryEntry) => h.command === 'concurrent-test'
+      );
+
+      // 全ての呼び出しが正しくカウントされていることを確認
+      expect(entry).toBeDefined();
+      if (entry) {
+        expect(entry.frequency).toBe(100);
+      }
+    });
+
+    it('should serialize concurrent save and recordCommand calls', async () => {
+      // recordCommandとsaveを並行実行
+      const promises = [];
+      for (let i = 0; i < 10; i++) {
+        promises.push(historyManager.recordCommand(`cmd-${i}`));
+        if (i % 3 === 0) {
+          promises.push(historyManager.save());
+        }
+      }
+
+      // 全ての操作が例外なく完了することを確認
+      await expect(Promise.all(promises)).resolves.toBeDefined();
+
+      const history = historyManager.getHistory();
+      expect(history.length).toBeGreaterThan(0);
+    });
+
+    it('should serialize concurrent load and recordCommand calls', async () => {
+      // 初期データを保存
+      await historyManager.recordCommand('initial');
+      await historyManager.save();
+
+      // loadとrecordCommandを並行実行
+      const promises = [
+        historyManager.load(),
+        historyManager.recordCommand('new-command'),
+        historyManager.load(),
+        historyManager.recordCommand('another-command'),
+      ];
+
+      // 全ての操作が例外なく完了することを確認
+      await expect(Promise.all(promises)).resolves.toBeDefined();
+
+      // データの整合性を確認
+      const history = historyManager.getHistory();
+      expect(history.length).toBeGreaterThan(0);
+    });
+  });
 });
