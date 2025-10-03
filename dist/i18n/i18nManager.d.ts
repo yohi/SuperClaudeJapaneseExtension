@@ -53,6 +53,12 @@ export declare class I18nManager {
      */
     private getNestedValue;
     /**
+     * 正規表現特殊文字をエスケープ
+     * @param str エスケープする文字列
+     * @returns エスケープされた文字列
+     */
+    private escapeRegExp;
+    /**
      * 文字列の補間処理
      * @param text テキスト
      * @param values 補間する値

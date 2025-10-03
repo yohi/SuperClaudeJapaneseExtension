@@ -184,6 +184,14 @@ class I18nManager {
         return typeof current === 'string' ? current : undefined;
     }
     /**
+     * 正規表現特殊文字をエスケープ
+     * @param str エスケープする文字列
+     * @returns エスケープされた文字列
+     */
+    escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    /**
      * 文字列の補間処理
      * @param text テキスト
      * @param values 補間する値
@@ -192,7 +200,8 @@ class I18nManager {
     interpolate(text, values) {
         let result = text;
         for (const [key, value] of Object.entries(values)) {
-            const placeholder = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+            const escapedKey = this.escapeRegExp(key);
+            const placeholder = new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g');
             result = result.replace(placeholder, String(value));
         }
         return result;
