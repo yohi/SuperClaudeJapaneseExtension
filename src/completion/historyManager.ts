@@ -240,6 +240,11 @@ export class HistoryManager {
         this.history.set(entry.command, entry);
       }
 
+      // 履歴サイズの制限を適用（ファイルから読み込んだデータがmaxHistorySizeを超える場合）
+      while (this.history.size > this.maxHistorySize) {
+        this.evictOldestEntry();
+      }
+
       return {
         ok: true,
         value: undefined,

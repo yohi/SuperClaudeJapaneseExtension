@@ -158,6 +158,42 @@ describe('HistoryManager', () => {
       expect(result.ok).toBe(true);
       expect(newHistoryManager.getHistory()).toEqual([]);
     });
+
+    it('should enforce maxHistorySize limit when loading from file', async () => {
+      // 10個のエントリを持つ履歴ファイルを作成
+      const testFile = path.join(os.tmpdir(), `test-oversized-${Date.now()}.json`);
+      const entries: HistoryEntry[] = [];
+      for (let i = 0; i < 10; i++) {
+        entries.push({
+          command: `cmd${i}`,
+          frequency: 1,
+          lastUsed: Date.now() - i * 1000,
+        });
+      }
+
+      const fileData = {
+        version: '1.0.0',
+        entries,
+      };
+      fs.writeFileSync(testFile, JSON.stringify(fileData));
+
+      try {
+        // maxHistorySize=5 で読み込み
+        const limitedManager = new HistoryManager(testFile, {
+          maxHistorySize: 5,
+        });
+        await limitedManager.load();
+
+        const history = limitedManager.getHistory();
+        expect(history.length).toBe(5);
+        expect(history.length).toBeLessThanOrEqual(5);
+      } finally {
+        // クリーンアップ
+        if (fs.existsSync(testFile)) {
+          fs.unlinkSync(testFile);
+        }
+      }
+    });
   });
 
   describe('concurrency', () => {
