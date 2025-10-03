@@ -9,6 +9,7 @@ export { TranslationLoader } from './i18n/translationLoader';
 export { MetadataParser } from './metadata/metadataParser';
 export { CommandMetadataLoader } from './metadata/commandMetadataLoader';
 export { HintProvider } from './hint/hintProvider';
+export { CompletionEngine } from './completion/completionEngine';
 export { CacheManager } from './cache/cacheManager';
 /**
  * バージョン情報
