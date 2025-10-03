@@ -4,7 +4,7 @@
  * エントリーポイント
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_CONFIG = exports.VERSION = exports.CacheManager = exports.HintProvider = exports.CommandMetadataLoader = exports.MetadataParser = exports.TranslationLoader = exports.I18nManager = exports.LogLevel = void 0;
+exports.DEFAULT_CONFIG = exports.VERSION = exports.CacheManager = exports.CompletionEngine = exports.HintProvider = exports.CommandMetadataLoader = exports.MetadataParser = exports.TranslationLoader = exports.I18nManager = exports.LogLevel = void 0;
 var types_1 = require("./types");
 Object.defineProperty(exports, "LogLevel", { enumerable: true, get: function () { return types_1.LogLevel; } });
 // i18nコンポーネント
@@ -20,11 +20,12 @@ Object.defineProperty(exports, "CommandMetadataLoader", { enumerable: true, get:
 // ヒントコンポーネント
 var hintProvider_1 = require("./hint/hintProvider");
 Object.defineProperty(exports, "HintProvider", { enumerable: true, get: function () { return hintProvider_1.HintProvider; } });
+// 補完コンポーネント
+var completionEngine_1 = require("./completion/completionEngine");
+Object.defineProperty(exports, "CompletionEngine", { enumerable: true, get: function () { return completionEngine_1.CompletionEngine; } });
 // キャッシュコンポーネント
 var cacheManager_1 = require("./cache/cacheManager");
 Object.defineProperty(exports, "CacheManager", { enumerable: true, get: function () { return cacheManager_1.CacheManager; } });
-// TODO: 他のコンポーネントの実装後に追加
-// export { CompletionEngine } from './completion/completionEngine';
 /**
  * バージョン情報
  */

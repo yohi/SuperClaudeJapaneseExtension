@@ -160,6 +160,21 @@ export type HintError = {
     type: 'TRANSLATION_UNAVAILABLE';
     key: string;
 };
+/**
+ * 補完候補
+ */
+export interface CompletionCandidate {
+    /** 候補名（コマンド名、フラグ名など） */
+    name: string;
+    /** 説明（翻訳済み） */
+    description: string;
+    /** カテゴリー（オプション） */
+    category?: string;
+    /** スコア（0.0-1.0、高いほど優先） */
+    score: number;
+    /** エイリアス（フラグの場合） */
+    alias?: string;
+}
 export type CompletionError = {
     type: 'INVALID_COMMAND';
     command: string;

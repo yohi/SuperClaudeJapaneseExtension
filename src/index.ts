@@ -14,6 +14,7 @@ export type {
   FlagMetadata,
   HintOutput,
   CompletionItem,
+  CompletionCandidate,
   CompletionOptions,
   CacheEntry,
   TranslateOptions,
@@ -39,11 +40,11 @@ export { CommandMetadataLoader } from './metadata/commandMetadataLoader';
 // ヒントコンポーネント
 export { HintProvider } from './hint/hintProvider';
 
+// 補完コンポーネント
+export { CompletionEngine } from './completion/completionEngine';
+
 // キャッシュコンポーネント
 export { CacheManager } from './cache/cacheManager';
-
-// TODO: 他のコンポーネントの実装後に追加
-// export { CompletionEngine } from './completion/completionEngine';
 
 /**
  * バージョン情報
