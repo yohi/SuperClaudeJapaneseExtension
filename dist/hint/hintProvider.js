@@ -428,6 +428,98 @@ class HintProvider {
         return null;
     }
     /**
+     * エラーメッセージをフォーマット（色付き）
+     * @param error ヒントエラー
+     * @param suggestions 候補リスト（オプション）
+     * @returns フォーマット済みエラーメッセージ
+     */
+    formatError(error, suggestions) {
+        const locale = this.i18nManager.getCurrentLocale();
+        let message = '';
+        // エラータイプに応じたメッセージ取得
+        const errorKey = `errors.${error.type}`;
+        const errorMessageResult = this.i18nManager.translate(errorKey);
+        const errorMessage = errorMessageResult.ok
+            ? errorMessageResult.value
+            : error.type;
+        // エラーアイコン（赤色）
+        message += chalk_1.default.red('✗') + ' ';
+        // エラーメッセージ（赤色、太字）
+        message += chalk_1.default.bold.red(errorMessage);
+        message += '\n';
+        // 詳細情報
+        switch (error.type) {
+            case 'COMMAND_NOT_FOUND':
+                message += `  ${chalk_1.default.gray(locale === 'ja' ? 'コマンド:' : 'Command:')} ${chalk_1.default.yellow(error.command)}`;
+                break;
+            case 'FLAG_NOT_FOUND':
+                message += `  ${chalk_1.default.gray(locale === 'ja' ? 'フラグ:' : 'Flag:')} ${chalk_1.default.yellow(error.flag)}`;
+                break;
+            case 'ARGUMENT_NOT_FOUND':
+                message += `  ${chalk_1.default.gray(locale === 'ja' ? 'コマンド:' : 'Command:')} ${chalk_1.default.yellow(error.command)}\n`;
+                message += `  ${chalk_1.default.gray(locale === 'ja' ? '引数:' : 'Argument:')} ${chalk_1.default.yellow(error.argument)}`;
+                break;
+            case 'TRANSLATION_UNAVAILABLE':
+                message += `  ${chalk_1.default.gray(locale === 'ja' ? 'キー:' : 'Key:')} ${chalk_1.default.yellow(error.key)}`;
+                break;
+        }
+        // 候補サジェスト
+        if (suggestions && suggestions.length > 0) {
+            message += '\n\n';
+            message += `  ${chalk_1.default.cyan(locale === 'ja' ? 'もしかして:' : 'Did you mean:')}`;
+            suggestions.slice(0, 3).forEach((suggestion) => {
+                message += `\n    ${chalk_1.default.green('•')} ${suggestion}`;
+            });
+        }
+        return message;
+    }
+    /**
+     * エラーメッセージをフォーマット（プレーンテキスト）
+     * @param error ヒントエラー
+     * @param suggestions 候補リスト（オプション）
+     * @returns フォーマット済みエラーメッセージ
+     */
+    formatErrorPlain(error, suggestions) {
+        const locale = this.i18nManager.getCurrentLocale();
+        let message = '';
+        // エラータイプに応じたメッセージ取得
+        const errorKey = `errors.${error.type}`;
+        const errorMessageResult = this.i18nManager.translate(errorKey);
+        const errorMessage = errorMessageResult.ok
+            ? errorMessageResult.value
+            : error.type;
+        // エラーアイコン
+        message += '✗ ';
+        // エラーメッセージ
+        message += errorMessage;
+        message += '\n';
+        // 詳細情報
+        switch (error.type) {
+            case 'COMMAND_NOT_FOUND':
+                message += `  ${locale === 'ja' ? 'コマンド:' : 'Command:'} ${error.command}`;
+                break;
+            case 'FLAG_NOT_FOUND':
+                message += `  ${locale === 'ja' ? 'フラグ:' : 'Flag:'} ${error.flag}`;
+                break;
+            case 'ARGUMENT_NOT_FOUND':
+                message += `  ${locale === 'ja' ? 'コマンド:' : 'Command:'} ${error.command}\n`;
+                message += `  ${locale === 'ja' ? '引数:' : 'Argument:'} ${error.argument}`;
+                break;
+            case 'TRANSLATION_UNAVAILABLE':
+                message += `  ${locale === 'ja' ? 'キー:' : 'Key:'} ${error.key}`;
+                break;
+        }
+        // 候補サジェスト
+        if (suggestions && suggestions.length > 0) {
+            message += '\n\n';
+            message += `  ${locale === 'ja' ? 'もしかして:' : 'Did you mean:'}`;
+            suggestions.slice(0, 3).forEach((suggestion) => {
+                message += `\n    • ${suggestion}`;
+            });
+        }
+        return message;
+    }
+    /**
      * キャッシュをクリア
      */
     clearCache() {

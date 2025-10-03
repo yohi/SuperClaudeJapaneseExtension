@@ -3,7 +3,9 @@
   "errors": {
     "COMMAND_NOT_FOUND": "Command not found",
     "FLAG_NOT_FOUND": "Flag not found",
+    "ARGUMENT_NOT_FOUND": "Argument not found",
     "TRANSLATION_NOT_FOUND": "Translation not found",
+    "TRANSLATION_UNAVAILABLE": "Translation unavailable",
     "FILE_NOT_FOUND": "File not found",
     "PARSE_ERROR": "Parse error occurred",
     "INIT_FAILED": "Initialization failed",
