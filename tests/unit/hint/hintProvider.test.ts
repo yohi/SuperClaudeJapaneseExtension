@@ -5,6 +5,7 @@
 import { HintProvider } from '../../../src/hint/hintProvider';
 import { I18nManager } from '../../../src/i18n/i18nManager';
 import { CommandMetadataLoader } from '../../../src/metadata/commandMetadataLoader';
+import type { HintError } from '../../../src/types';
 import * as path from 'path';
 
 describe('HintProvider', () => {
@@ -307,6 +308,98 @@ describe('HintProvider', () => {
         expect(result.value).toContain('target');
         expect(result.value).toContain('ビルド対象を指定');
       }
+    });
+  });
+
+  describe('formatError', () => {
+    it('should format COMMAND_NOT_FOUND error in Japanese', () => {
+      const error: HintError = {
+        type: 'COMMAND_NOT_FOUND',
+        command: 'nonexistent',
+      };
+
+      const result = hintProvider.formatError(error);
+
+      expect(result).toContain('コマンドが見つかりません');
+      expect(result).toContain('nonexistent');
+    });
+
+    it('should format FLAG_NOT_FOUND error in Japanese', () => {
+      const error: HintError = {
+        type: 'FLAG_NOT_FOUND',
+        flag: 'nonexistent',
+      };
+
+      const result = hintProvider.formatError(error);
+
+      expect(result).toContain('フラグが見つかりません');
+      expect(result).toContain('nonexistent');
+    });
+
+    it('should format ARGUMENT_NOT_FOUND error in Japanese', () => {
+      const error: HintError = {
+        type: 'ARGUMENT_NOT_FOUND',
+        command: 'build',
+        argument: 'nonexistent',
+      };
+
+      const result = hintProvider.formatError(error);
+
+      expect(result).toContain('引数が見つかりません');
+      expect(result).toContain('build');
+      expect(result).toContain('nonexistent');
+    });
+
+    it('should provide suggestions for typos', () => {
+      const error: HintError = {
+        type: 'COMMAND_NOT_FOUND',
+        command: 'buidl',
+      };
+
+      const result = hintProvider.formatError(error, ['build', 'test']);
+
+      expect(result).toContain('もしかして:');
+      expect(result).toContain('build');
+    });
+
+    it('should format error in English when language is English', async () => {
+      await i18nManager.changeLanguage('en');
+
+      const error: HintError = {
+        type: 'COMMAND_NOT_FOUND',
+        command: 'nonexistent',
+      };
+
+      const result = hintProvider.formatError(error);
+
+      expect(result).toContain('Command not found');
+      expect(result).toContain('nonexistent');
+    });
+
+    it('should handle TRANSLATION_UNAVAILABLE error', () => {
+      const error: HintError = {
+        type: 'TRANSLATION_UNAVAILABLE',
+        key: 'some.key',
+      };
+
+      const result = hintProvider.formatError(error);
+
+      expect(result).toContain('翻訳が利用できません');
+      expect(result).toContain('some.key');
+    });
+  });
+
+  describe('formatErrorPlain', () => {
+    it('should format error without color codes', () => {
+      const error: HintError = {
+        type: 'COMMAND_NOT_FOUND',
+        command: 'nonexistent',
+      };
+
+      const result = hintProvider.formatErrorPlain(error);
+
+      expect(result).not.toMatch(/\x1b\[/);
+      expect(result).toContain('コマンドが見つかりません');
     });
   });
 });

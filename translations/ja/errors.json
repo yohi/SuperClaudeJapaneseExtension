@@ -3,7 +3,9 @@
   "errors": {
     "COMMAND_NOT_FOUND": "コマンドが見つかりません",
     "FLAG_NOT_FOUND": "フラグが見つかりません",
+    "ARGUMENT_NOT_FOUND": "引数が見つかりません",
     "TRANSLATION_NOT_FOUND": "翻訳が見つかりません",
+    "TRANSLATION_UNAVAILABLE": "翻訳が利用できません",
     "FILE_NOT_FOUND": "ファイルが見つかりません",
     "PARSE_ERROR": "解析エラーが発生しました",
     "INIT_FAILED": "初期化に失敗しました",

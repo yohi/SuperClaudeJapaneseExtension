@@ -84,6 +84,20 @@ export declare class HintProvider {
      */
     private getArgumentTranslation;
     /**
+     * エラーメッセージをフォーマット（色付き）
+     * @param error ヒントエラー
+     * @param suggestions 候補リスト（オプション）
+     * @returns フォーマット済みエラーメッセージ
+     */
+    formatError(error: HintError, suggestions?: string[]): string;
+    /**
+     * エラーメッセージをフォーマット（プレーンテキスト）
+     * @param error ヒントエラー
+     * @param suggestions 候補リスト（オプション）
+     * @returns フォーマット済みエラーメッセージ
+     */
+    formatErrorPlain(error: HintError, suggestions?: string[]): string;
+    /**
      * キャッシュをクリア
      */
     clearCache(): void;
