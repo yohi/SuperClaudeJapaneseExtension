@@ -63,6 +63,27 @@ export declare class HintProvider {
      */
     private getFlagTranslation;
     /**
+     * 引数ヒントを生成（色付き）
+     * @param commandName コマンド名
+     * @param argumentName 引数名（例: "target", "@config.json"）
+     * @returns ヒント文字列またはエラー
+     */
+    generateArgumentHint(commandName: string, argumentName: string): Result<string, HintError>;
+    /**
+     * 引数ヒントを生成（プレーンテキスト）
+     * @param commandName コマンド名
+     * @param argumentName 引数名
+     * @returns ヒント文字列またはエラー
+     */
+    generateArgumentHintPlain(commandName: string, argumentName: string): Result<string, HintError>;
+    /**
+     * 引数翻訳を取得（フォールバック付き）
+     * @param commandName コマンド名
+     * @param argumentName 引数名
+     * @returns 引数翻訳またはnull
+     */
+    private getArgumentTranslation;
+    /**
      * キャッシュをクリア
      */
     clearCache(): void;

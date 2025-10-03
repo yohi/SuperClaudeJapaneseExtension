@@ -1,7 +1,7 @@
 {
   "feature_name": "superclaud-japanese-i18n",
   "created_at": "2025-10-03T00:00:00Z",
-  "updated_at": "2025-10-03T16:35:00Z",
+  "updated_at": "2025-10-03T16:40:00Z",
   "language": "ja",
   "phase": "implementation",
   "approvals": {
@@ -31,13 +31,13 @@
       "3.2",
       "3.3",
       "4.1",
-      "4.2"
+      "4.2",
+      "4.3"
     ],
     "in_progress_tasks": [
       "4"
     ],
     "pending_tasks": [
-      "4.3",
       "4.4",
       "5",
       "6",
@@ -55,10 +55,10 @@
   "test_results": {
     "total_suites": 7,
     "passed_suites": 7,
-    "total_tests": 92,
-    "passed_tests": 92,
+    "total_tests": 99,
+    "passed_tests": 99,
     "failed_tests": 0,
-    "last_run": "2025-10-03T16:35:00Z"
+    "last_run": "2025-10-03T16:40:00Z"
   },
   "milestones": {
     "task_1_completed": {
@@ -115,6 +115,20 @@
         "キャッシュ統合とフォールバック機構",
         "6つの新しいテストケース追加（合計18テストケース）"
       ]
+    },
+    "task_4_3_completed": {
+      "date": "2025-10-03T16:40:00Z",
+      "description": "引数ヒント生成機能の実装完了",
+      "deliverables": [
+        "generateArgumentHint() メソッド実装（色付きヒント生成）",
+        "generateArgumentHintPlain() メソッド実装（プレーンテキスト）",
+        "@<path> 記法の検出と特別処理機能",
+        "ファイルパス引数の自動識別とラベル表示",
+        "ARGUMENT_NOT_FOUND エラーハンドリング",
+        "引数翻訳のフォールバック機構",
+        "キャッシュ統合（arg:[command]:[argument]:[locale]）",
+        "7つの新しいテストケース追加（合計25テストケース）"
+      ]
     }
   },
   "components_implemented": [
@@ -157,7 +171,7 @@
       "name": "HintProvider",
       "path": "src/hint/hintProvider.ts",
       "tests": "tests/unit/hint/hintProvider.test.ts",
-      "test_count": 18,
+      "test_count": 25,
       "status": "completed"
     }
   ],
@@ -172,10 +186,9 @@
     "total_translations": 18
   },
   "next_task": {
-    "id": "4.3",
-    "name": "引数ヒント生成機能",
+    "id": "4.4",
+    "name": "エラーメッセージの日本語化",
     "subtasks": [
-      "4.3",
       "4.4"
     ]
   }
