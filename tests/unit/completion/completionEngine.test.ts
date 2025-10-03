@@ -150,4 +150,105 @@ describe('CompletionEngine', () => {
       }
     });
   });
+
+  describe('completeFlag', () => {
+    it('should complete flag with prefix matching', () => {
+      const result = completionEngine.completeFlag('--p');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.length).toBeGreaterThan(0);
+        const planFlag = result.value.find(
+          (f: CompletionCandidate) => f.name === '--plan'
+        );
+        expect(planFlag).toBeDefined();
+      }
+    });
+
+    it('should complete flag without prefix (--)', () => {
+      const result = completionEngine.completeFlag('p');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.length).toBeGreaterThan(0);
+        const planFlag = result.value.find(
+          (f: CompletionCandidate) =>
+            f.name === '--plan' || f.name === 'plan'
+        );
+        expect(planFlag).toBeDefined();
+      }
+    });
+
+    it('should include alias information', () => {
+      const result = completionEngine.completeFlag('uc');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        const ucFlag = result.value.find((f: CompletionCandidate) =>
+          f.name.includes('uc')
+        );
+        expect(ucFlag).toBeDefined();
+        if (ucFlag) {
+          expect(ucFlag.alias).toBeDefined();
+          expect(ucFlag.alias).toBe('ultracompressed');
+        }
+      }
+    });
+
+    it('should complete with alias matching', () => {
+      const result = completionEngine.completeFlag('ultracomp');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // aliasでもマッチする
+        const ucFlag = result.value.find((f: CompletionCandidate) =>
+          f.alias?.includes('ultracomp')
+        );
+        expect(ucFlag).toBeDefined();
+      }
+    });
+
+    it('should include Japanese description', () => {
+      const result = completionEngine.completeFlag('--plan');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value[0].description).toContain('計画');
+      }
+    });
+
+    it('should return sorted by score', () => {
+      const result = completionEngine.completeFlag('p');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        for (let i = 0; i < result.value.length - 1; i++) {
+          expect(result.value[i].score).toBeGreaterThanOrEqual(
+            result.value[i + 1].score
+          );
+        }
+      }
+    });
+
+    it('should filter by command context when provided', () => {
+      const result = completionEngine.completeFlag('--p', 'build');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // buildコマンドで利用可能なフラグのみ返す
+        expect(result.value.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should fallback to English when Japanese not available', async () => {
+      await i18nManager.changeLanguage('en');
+
+      const result = completionEngine.completeFlag('--plan');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value[0].description).toContain('plan');
+      }
+    });
+  });
 });
