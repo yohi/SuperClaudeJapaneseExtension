@@ -233,4 +233,80 @@ describe('HintProvider', () => {
       }
     });
   });
+
+  describe('generateArgumentHint', () => {
+    it('should generate Japanese hint for argument', () => {
+      const result = hintProvider.generateArgumentHint('build', 'target');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('target');
+        expect(result.value).toContain('ビルド対象を指定');
+      }
+    });
+
+    it('should detect @<path> notation', () => {
+      const result = hintProvider.generateArgumentHint('test', '@config.json');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('@config.json');
+        expect(result.value).toContain('ファイルパス');
+      }
+    });
+
+    it('should show argument type hints', () => {
+      const result = hintProvider.generateArgumentHint('build', 'target');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // 型情報が含まれる（文字列、ファイルパスなど）
+        expect(result.value.length).toBeGreaterThan(10);
+      }
+    });
+
+    it('should fallback to English when Japanese not available', async () => {
+      await i18nManager.changeLanguage('en');
+
+      const result = hintProvider.generateArgumentHint('build', 'target');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('target');
+        expect(result.value).toContain('Specify build target');
+      }
+    });
+
+    it('should return error for non-existent command', () => {
+      const result = hintProvider.generateArgumentHint('nonexistent', 'arg');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('COMMAND_NOT_FOUND');
+      }
+    });
+
+    it('should return error for non-existent argument', () => {
+      const result = hintProvider.generateArgumentHint('build', 'nonexistent');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('ARGUMENT_NOT_FOUND');
+      }
+    });
+  });
+
+  describe('generateArgumentHintPlain', () => {
+    it('should generate plain argument hint without color codes', () => {
+      const result = hintProvider.generateArgumentHintPlain('build', 'target');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // ANSI色コードを含まない
+        expect(result.value).not.toMatch(/\x1b\[/);
+        expect(result.value).toContain('target');
+        expect(result.value).toContain('ビルド対象を指定');
+      }
+    });
+  });
 });

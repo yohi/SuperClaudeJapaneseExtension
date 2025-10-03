@@ -153,6 +153,10 @@ export type HintError = {
     type: 'FLAG_NOT_FOUND';
     flag: string;
 } | {
+    type: 'ARGUMENT_NOT_FOUND';
+    command: string;
+    argument: string;
+} | {
     type: 'TRANSLATION_UNAVAILABLE';
     key: string;
 };

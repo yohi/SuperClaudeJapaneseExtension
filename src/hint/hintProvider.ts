@@ -339,6 +339,195 @@ export class HintProvider {
   }
 
   /**
+   * 引数ヒントを生成（色付き）
+   * @param commandName コマンド名
+   * @param argumentName 引数名（例: "target", "@config.json"）
+   * @returns ヒント文字列またはエラー
+   */
+  generateArgumentHint(
+    commandName: string,
+    argumentName: string
+  ): Result<string, HintError> {
+    // キャッシュをチェック
+    const cacheKey = `arg:${commandName}:${argumentName}:${this.i18nManager.getCurrentLocale()}`;
+    const cached = this.hintCache.get(cacheKey);
+    if (cached) {
+      return {
+        ok: true,
+        value: cached,
+      };
+    }
+
+    // コマンドメタデータを取得
+    const metadata = this.metadataLoader.getCommand(commandName);
+    if (!metadata) {
+      return {
+        ok: false,
+        error: {
+          type: 'COMMAND_NOT_FOUND',
+          command: commandName,
+        },
+      };
+    }
+
+    // @<path> 記法の検出
+    const isFilePath = argumentName.startsWith('@');
+    const cleanArgName = isFilePath
+      ? argumentName.substring(1)
+      : argumentName;
+
+    // 引数翻訳を取得
+    const argumentTranslation = this.getArgumentTranslation(
+      commandName,
+      cleanArgName
+    );
+    if (!argumentTranslation && !isFilePath) {
+      return {
+        ok: false,
+        error: {
+          type: 'ARGUMENT_NOT_FOUND',
+          command: commandName,
+          argument: argumentName,
+        },
+      };
+    }
+
+    // ヒントを構築
+    let hint = '';
+    const locale = this.i18nManager.getCurrentLocale();
+
+    // 引数名（黄色、太字）
+    hint += chalk.bold.yellow(argumentName);
+
+    // @<path> 記法の場合
+    if (isFilePath) {
+      const filePathLabel =
+        locale === 'ja' ? 'ファイルパス引数' : 'File path argument';
+      hint += ` ${chalk.gray(`(${filePathLabel})`)}`;
+    }
+
+    hint += '\n';
+
+    // 説明
+    if (argumentTranslation) {
+      hint += `  ${argumentTranslation}`;
+    } else if (isFilePath) {
+      const defaultDesc =
+        locale === 'ja'
+          ? 'ファイルパスを指定'
+          : 'Specify file path';
+      hint += `  ${defaultDesc}`;
+    }
+
+    // キャッシュに保存
+    this.hintCache.set(cacheKey, hint);
+
+    return {
+      ok: true,
+      value: hint,
+    };
+  }
+
+  /**
+   * 引数ヒントを生成（プレーンテキスト）
+   * @param commandName コマンド名
+   * @param argumentName 引数名
+   * @returns ヒント文字列またはエラー
+   */
+  generateArgumentHintPlain(
+    commandName: string,
+    argumentName: string
+  ): Result<string, HintError> {
+    // コマンドメタデータを取得
+    const metadata = this.metadataLoader.getCommand(commandName);
+    if (!metadata) {
+      return {
+        ok: false,
+        error: {
+          type: 'COMMAND_NOT_FOUND',
+          command: commandName,
+        },
+      };
+    }
+
+    // @<path> 記法の検出
+    const isFilePath = argumentName.startsWith('@');
+    const cleanArgName = isFilePath
+      ? argumentName.substring(1)
+      : argumentName;
+
+    // 引数翻訳を取得
+    const argumentTranslation = this.getArgumentTranslation(
+      commandName,
+      cleanArgName
+    );
+    if (!argumentTranslation && !isFilePath) {
+      return {
+        ok: false,
+        error: {
+          type: 'ARGUMENT_NOT_FOUND',
+          command: commandName,
+          argument: argumentName,
+        },
+      };
+    }
+
+    // ヒントを構築（色なし）
+    let hint = '';
+    const locale = this.i18nManager.getCurrentLocale();
+
+    // 引数名
+    hint += argumentName;
+
+    // @<path> 記法の場合
+    if (isFilePath) {
+      const filePathLabel =
+        locale === 'ja' ? 'ファイルパス引数' : 'File path argument';
+      hint += ` (${filePathLabel})`;
+    }
+
+    hint += '\n';
+
+    // 説明
+    if (argumentTranslation) {
+      hint += `  ${argumentTranslation}`;
+    } else if (isFilePath) {
+      const defaultDesc =
+        locale === 'ja'
+          ? 'ファイルパスを指定'
+          : 'Specify file path';
+      hint += `  ${defaultDesc}`;
+    }
+
+    return {
+      ok: true,
+      value: hint,
+    };
+  }
+
+  /**
+   * 引数翻訳を取得（フォールバック付き）
+   * @param commandName コマンド名
+   * @param argumentName 引数名
+   * @returns 引数翻訳またはnull
+   */
+  private getArgumentTranslation(
+    commandName: string,
+    argumentName: string
+  ): string | null {
+    // 翻訳データから取得を試みる
+    const translationKey = `commands.${commandName}.arguments.${argumentName}`;
+    const translationResult = this.i18nManager.translate(translationKey);
+
+    if (translationResult.ok) {
+      return translationResult.value;
+    }
+
+    // フォールバック: 翻訳が見つからない場合はnull
+    return null;
+  }
+
+  /**
    * キャッシュをクリア
    */
   clearCache(): void {
