@@ -219,6 +219,15 @@ export class I18nManager {
   }
 
   /**
+   * 正規表現特殊文字をエスケープ
+   * @param str エスケープする文字列
+   * @returns エスケープされた文字列
+   */
+  private escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
    * 文字列の補間処理
    * @param text テキスト
    * @param values 補間する値
@@ -230,7 +239,8 @@ export class I18nManager {
   ): string {
     let result = text;
     for (const [key, value] of Object.entries(values)) {
-      const placeholder = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+      const escapedKey = this.escapeRegExp(key);
+      const placeholder = new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g');
       result = result.replace(placeholder, String(value));
     }
     return result;

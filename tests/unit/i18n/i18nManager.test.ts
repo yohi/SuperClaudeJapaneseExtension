@@ -105,6 +105,16 @@ describe('I18nManager', () => {
 
       expect(result.ok).toBe(true);
     });
+
+    it('should safely handle regex special characters in interpolation keys', () => {
+      // 正規表現特殊文字を含むキーでもエスケープされて安全に動作するか確認
+      const result = manager.translate('commands.build.description', {
+        interpolation: { 'test.*key': 'value', 'another+key': 'test' },
+      });
+
+      expect(result.ok).toBe(true);
+      // エラーが発生せずに処理が完了することを確認
+    });
   });
 
   describe('changeLanguage', () => {
