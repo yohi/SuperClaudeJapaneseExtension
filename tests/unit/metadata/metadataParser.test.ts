@@ -77,7 +77,7 @@ describe('MetadataParser', () => {
       }
     });
 
-    it('should handle file without Japanese translations', async () => {
+    it('should handle file with Japanese translations', async () => {
       const testPath = path.join(fixturesDir, 'test.md');
       const result = await parser.parseCommandMetadata(testPath);
 
@@ -86,7 +86,7 @@ describe('MetadataParser', () => {
         expect(result.value.descriptionJa).toBe(
           'テストケースの生成と実行'
         );
-        // 日本語が存在する場合のテスト
+        // 日本語翻訳が存在する場合のテスト
       }
     });
 
