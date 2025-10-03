@@ -32,10 +32,18 @@ export { LogLevel } from './types';
 export { I18nManager } from './i18n/i18nManager';
 export { TranslationLoader } from './i18n/translationLoader';
 
+// メタデータコンポーネント
+export { MetadataParser } from './metadata/metadataParser';
+export { CommandMetadataLoader } from './metadata/commandMetadataLoader';
+
+// ヒントコンポーネント
+export { HintProvider } from './hint/hintProvider';
+
+// キャッシュコンポーネント
+export { CacheManager } from './cache/cacheManager';
+
 // TODO: 他のコンポーネントの実装後に追加
-// export { HintProvider } from './hint/hintProvider';
 // export { CompletionEngine } from './completion/completionEngine';
-// export { MetadataParser } from './metadata/metadataParser';
 
 /**
  * バージョン情報

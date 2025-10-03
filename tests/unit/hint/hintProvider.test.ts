@@ -165,4 +165,72 @@ describe('HintProvider', () => {
       }
     });
   });
+
+  describe('generateFlagHint', () => {
+    it('should generate Japanese hint for flag', () => {
+      const result = hintProvider.generateFlagHint('plan');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('plan');
+        expect(result.value).toContain('実行前に詳細な計画を表示');
+      }
+    });
+
+    it('should include alias information when available', () => {
+      const result = hintProvider.generateFlagHint('uc');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('uc');
+        expect(result.value).toContain('ultracompressed');
+        expect(result.value).toContain('トークン使用を30-50%削減');
+      }
+    });
+
+    it('should include example when available', () => {
+      const result = hintProvider.generateFlagHint('plan');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('例:');
+        expect(result.value).toContain('claude /build --plan');
+      }
+    });
+
+    it('should fallback to English when Japanese not available', async () => {
+      await i18nManager.changeLanguage('en');
+
+      const result = hintProvider.generateFlagHint('plan');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value).toContain('plan');
+        expect(result.value).toContain('Display detailed plan');
+      }
+    });
+
+    it('should return error for non-existent flag', () => {
+      const result = hintProvider.generateFlagHint('nonexistent');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('FLAG_NOT_FOUND');
+      }
+    });
+  });
+
+  describe('generateFlagHintPlain', () => {
+    it('should generate plain flag hint without color codes', () => {
+      const result = hintProvider.generateFlagHintPlain('plan');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // ANSI色コードを含まない
+        expect(result.value).not.toMatch(/\x1b\[/);
+        expect(result.value).toContain('plan');
+        expect(result.value).toContain('実行前に詳細な計画を表示');
+      }
+    });
+  });
 });

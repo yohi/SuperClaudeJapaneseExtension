@@ -200,6 +200,145 @@ export class HintProvider {
   }
 
   /**
+   * フラグヒントを生成（色付き）
+   * @param flagName フラグ名
+   * @returns ヒント文字列またはエラー
+   */
+  generateFlagHint(flagName: string): Result<string, HintError> {
+    // キャッシュをチェック
+    const cacheKey = `flag:${flagName}:${this.i18nManager.getCurrentLocale()}`;
+    const cached = this.hintCache.get(cacheKey);
+    if (cached) {
+      return {
+        ok: true,
+        value: cached,
+      };
+    }
+
+    // 翻訳を取得
+    const flagTranslation = this.getFlagTranslation(flagName);
+    if (!flagTranslation) {
+      return {
+        ok: false,
+        error: {
+          type: 'FLAG_NOT_FOUND',
+          flag: flagName,
+        },
+      };
+    }
+
+    // ヒントを構築
+    let hint = '';
+
+    // フラグ名（緑色、太字）
+    hint += chalk.bold.green(`--${flagName}`);
+
+    // エイリアス（マゼンタ）
+    if (flagTranslation.alias) {
+      hint += ` ${chalk.magenta(`(--${flagTranslation.alias})`)}`;
+    }
+
+    hint += '\n';
+
+    // 説明（通常）
+    hint += `  ${flagTranslation.description}`;
+
+    // 使用例（シアン）
+    if (flagTranslation.example) {
+      const locale = this.i18nManager.getCurrentLocale();
+      const exampleLabel = locale === 'ja' ? '例:' : 'Example:';
+      hint += `\n  ${chalk.cyan(exampleLabel)} ${chalk.gray(flagTranslation.example)}`;
+    }
+
+    // キャッシュに保存
+    this.hintCache.set(cacheKey, hint);
+
+    return {
+      ok: true,
+      value: hint,
+    };
+  }
+
+  /**
+   * フラグヒントを生成（プレーンテキスト）
+   * @param flagName フラグ名
+   * @returns ヒント文字列またはエラー
+   */
+  generateFlagHintPlain(flagName: string): Result<string, HintError> {
+    // 翻訳を取得
+    const flagTranslation = this.getFlagTranslation(flagName);
+    if (!flagTranslation) {
+      return {
+        ok: false,
+        error: {
+          type: 'FLAG_NOT_FOUND',
+          flag: flagName,
+        },
+      };
+    }
+
+    // ヒントを構築（色なし）
+    let hint = '';
+
+    // フラグ名
+    hint += `--${flagName}`;
+
+    // エイリアス
+    if (flagTranslation.alias) {
+      hint += ` (--${flagTranslation.alias})`;
+    }
+
+    hint += '\n';
+
+    // 説明
+    hint += `  ${flagTranslation.description}`;
+
+    // 使用例
+    if (flagTranslation.example) {
+      const locale = this.i18nManager.getCurrentLocale();
+      const exampleLabel = locale === 'ja' ? '例:' : 'Example:';
+      hint += `\n  ${exampleLabel} ${flagTranslation.example}`;
+    }
+
+    return {
+      ok: true,
+      value: hint,
+    };
+  }
+
+  /**
+   * フラグ翻訳を取得（フォールバック付き）
+   * @param flagName フラグ名
+   * @returns フラグ翻訳またはnull
+   */
+  private getFlagTranslation(flagName: string): {
+    description: string;
+    alias?: string;
+    example?: string;
+  } | null {
+    // 個別のキーで取得を試みる
+    const descriptionKey = `flags.${flagName}.description`;
+    const aliasKey = `flags.${flagName}.alias`;
+    const exampleKey = `flags.${flagName}.example`;
+
+    const descriptionResult = this.i18nManager.translate(descriptionKey);
+
+    // 説明が見つからない場合はnullを返す
+    if (!descriptionResult.ok) {
+      return null;
+    }
+
+    const aliasResult = this.i18nManager.translate(aliasKey);
+    const exampleResult = this.i18nManager.translate(exampleKey);
+
+    return {
+      description: descriptionResult.value,
+      alias: aliasResult.ok ? aliasResult.value : undefined,
+      example: exampleResult.ok ? exampleResult.value : undefined,
+    };
+  }
+
+  /**
    * キャッシュをクリア
    */
   clearCache(): void {
