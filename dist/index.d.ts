@@ -6,6 +6,10 @@ export type { SupportedLocale, Result, TranslationResource, CommandTranslation, 
 export { LogLevel } from './types';
 export { I18nManager } from './i18n/i18nManager';
 export { TranslationLoader } from './i18n/translationLoader';
+export { MetadataParser } from './metadata/metadataParser';
+export { CommandMetadataLoader } from './metadata/commandMetadataLoader';
+export { HintProvider } from './hint/hintProvider';
+export { CacheManager } from './cache/cacheManager';
 /**
  * バージョン情報
  */

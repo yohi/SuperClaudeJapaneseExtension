@@ -151,6 +151,7 @@ export type ValidationError = {
 
 export type HintError =
   | { type: 'COMMAND_NOT_FOUND'; command: string }
+  | { type: 'FLAG_NOT_FOUND'; flag: string }
   | { type: 'TRANSLATION_UNAVAILABLE'; key: string };
 
 export type CompletionError =
