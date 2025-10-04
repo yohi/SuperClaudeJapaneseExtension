@@ -1,0 +1,77 @@
+#compdef claude
+# Claude Code zsh補完スクリプト
+#
+# インストール:
+#   1. このファイルを $fpath のディレクトリにコピー（例: /usr/local/share/zsh/site-functions/）
+#   2. または、~/.zshrc に以下を追加:
+#      fpath=(~/.claude/extensions/japanese-i18n/completions/zsh $fpath)
+#      autoload -Uz compinit && compinit
+#
+# 使用方法:
+#   claude <TAB>       # コマンド補完
+#   claude build --<TAB> # フラグ補完
+
+# ヘルパースクリプトのパス
+# 本番環境: ~/.claude/extensions/japanese-i18n/dist/completions/helpers/get-hints.js
+# 開発環境: プロジェクトルート/dist/completions/helpers/get-hints.js
+local helper_script="${CLAUDE_HELPER_SCRIPT:-$HOME/.claude/extensions/japanese-i18n/dist/completions/helpers/get-hints.js}"
+
+# ヘルパースクリプトが存在しない場合は何もしない
+if [[ ! -f "${helper_script}" ]]; then
+  return 0
+fi
+
+# メイン補完関数
+_claude() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  # コマンドライン解析
+  _arguments -C \
+    '1: :_claude_commands' \
+    '*::arg:->args'
+
+  case $state in
+    args)
+      # フラグ補完
+      _claude_flags
+      ;;
+  esac
+}
+
+# コマンド名補完
+_claude_commands() {
+  local -a commands
+  local candidates
+
+  # ヘルパースクリプトからコマンド候補を取得
+  candidates=$(node "${helper_script}" command "" 2>/dev/null)
+
+  if [[ -n "${candidates}" ]]; then
+    # スペース区切りを改行区切りに変換
+    commands=("${(@f)$(echo ${candidates} | tr ' ' '\n')}")
+    _describe 'claude commands' commands
+  fi
+}
+
+# フラグ補完
+_claude_flags() {
+  local -a flags
+  local candidates
+  local cmd="${line[1]}"
+
+  # 現在入力中の単語がフラグ（-で始まる）の場合のみ補完
+  if [[ "${words[CURRENT]}" == -* ]]; then
+    # ヘルパースクリプトからフラグ候補を取得
+    candidates=$(node "${helper_script}" flag "${cmd}" "${words[CURRENT]}" 2>/dev/null)
+
+    if [[ -n "${candidates}" ]]; then
+      # スペース区切りを改行区切りに変換
+      flags=("${(@f)$(echo ${candidates} | tr ' ' '\n')}")
+      _describe 'flags' flags
+    fi
+  fi
+}
+
+# 補完関数を実行
+_claude "$@"
