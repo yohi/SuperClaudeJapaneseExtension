@@ -113,6 +113,14 @@ export class CommandMetadataLoader {
   }
 
   /**
+   * コマンドメタデータを登録
+   * @param metadata コマンドメタデータ
+   */
+  registerCommand(metadata: CommandMetadata): void {
+    this.commands.set(metadata.name, metadata);
+  }
+
+  /**
    * キャッシュをクリア
    */
   clearCache(): void {

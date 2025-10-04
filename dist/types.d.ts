@@ -189,4 +189,29 @@ export type ParseError = {
     type: 'FILE_READ_ERROR';
     path: string;
 };
+/**
+ * コマンド履歴エントリ
+ */
+export interface HistoryEntry {
+    /** コマンド名 */
+    command: string;
+    /** 使用頻度 */
+    frequency: number;
+    /** 最終使用時刻（UNIXタイムスタンプ） */
+    lastUsed: number;
+}
+/**
+ * 履歴マネージャーオプション
+ */
+export interface HistoryManagerOptions {
+    /** 最大履歴サイズ */
+    maxHistorySize?: number;
+}
+export type HistoryError = {
+    type: 'SAVE_FAILED';
+    message: string;
+} | {
+    type: 'LOAD_FAILED';
+    message: string;
+};
 //# sourceMappingURL=types.d.ts.map

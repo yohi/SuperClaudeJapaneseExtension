@@ -52,6 +52,11 @@ export declare class CommandMetadataLoader {
      */
     hasCommand(commandName: string): boolean;
     /**
+     * コマンドメタデータを登録
+     * @param metadata コマンドメタデータ
+     */
+    registerCommand(metadata: CommandMetadata): void;
+    /**
      * キャッシュをクリア
      */
     clearCache(): void;
