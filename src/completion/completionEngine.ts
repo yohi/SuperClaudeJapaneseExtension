@@ -82,13 +82,13 @@ export class CompletionEngine {
 
   /**
    * フラグ補完
-   * @param prefix 入力プレフィックス（例: "--p", "p", "uc"）
    * @param commandName コマンド名（フィルタリング用、オプション）
+   * @param prefix 入力プレフィックス（例: "--p", "p", "uc"）
    * @returns 補完候補リスト
    */
   completeFlag(
-    prefix: string,
-    commandName?: string
+    commandName: string | undefined,
+    prefix: string
   ): Result<CompletionCandidate[], CompletionError> {
     // コマンド名が指定された場合、存在確認
     if (commandName && !this.metadataLoader.hasCommand(commandName)) {

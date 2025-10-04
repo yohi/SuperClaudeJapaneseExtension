@@ -153,7 +153,7 @@ describe('CompletionEngine', () => {
 
   describe('completeFlag', () => {
     it('should complete flag with prefix matching', () => {
-      const result = completionEngine.completeFlag('--p');
+      const result = completionEngine.completeFlag(undefined, '--p');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -166,7 +166,7 @@ describe('CompletionEngine', () => {
     });
 
     it('should complete flag without prefix (--)', () => {
-      const result = completionEngine.completeFlag('p');
+      const result = completionEngine.completeFlag(undefined, 'p');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -180,7 +180,7 @@ describe('CompletionEngine', () => {
     });
 
     it('should include alias information', () => {
-      const result = completionEngine.completeFlag('uc');
+      const result = completionEngine.completeFlag(undefined, 'uc');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -196,7 +196,7 @@ describe('CompletionEngine', () => {
     });
 
     it('should complete with alias matching', () => {
-      const result = completionEngine.completeFlag('ultracomp');
+      const result = completionEngine.completeFlag(undefined, 'ultracomp');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -209,7 +209,7 @@ describe('CompletionEngine', () => {
     });
 
     it('should include Japanese description', () => {
-      const result = completionEngine.completeFlag('--plan');
+      const result = completionEngine.completeFlag(undefined, '--plan');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -218,7 +218,7 @@ describe('CompletionEngine', () => {
     });
 
     it('should return sorted by score', () => {
-      const result = completionEngine.completeFlag('p');
+      const result = completionEngine.completeFlag(undefined, 'p');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -231,7 +231,7 @@ describe('CompletionEngine', () => {
     });
 
     it('should filter by command context when provided', () => {
-      const result = completionEngine.completeFlag('--p', 'build');
+      const result = completionEngine.completeFlag('build', '--p');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -243,7 +243,7 @@ describe('CompletionEngine', () => {
     it('should fallback to English when Japanese not available', async () => {
       await i18nManager.changeLanguage('en');
 
-      const result = completionEngine.completeFlag('--plan');
+      const result = completionEngine.completeFlag(undefined, '--plan');
 
       expect(result.ok).toBe(true);
       if (result.ok) {

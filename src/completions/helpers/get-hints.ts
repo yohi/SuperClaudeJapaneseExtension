@@ -104,7 +104,7 @@ async function handleFlagCompletion(
   prefix: string,
   engine: CompletionEngine
 ): Promise<string> {
-  const result = engine.completeFlag(prefix, command);
+  const result = engine.completeFlag(command, prefix);
 
   if (!result.ok) {
     return '';

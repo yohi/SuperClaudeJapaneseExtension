@@ -119,7 +119,7 @@ async function handleCommandCompletion(prefix, engine) {
  * フラグ補完を処理
  */
 async function handleFlagCompletion(command, prefix, engine) {
-    const result = engine.completeFlag(prefix, command);
+    const result = engine.completeFlag(command, prefix);
     if (!result.ok) {
         return '';
     }
