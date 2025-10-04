@@ -49,7 +49,7 @@ _claude_commands() {
 
   if [[ -n "${candidates}" ]]; then
     # スペース区切りを改行区切りに変換
-    commands=("${(@f)$(echo ${candidates} | tr ' ' '\n')}")
+    commands=("${(@f)$(printf '%s\n' "${candidates}" | tr ' ' '\n')}")
     _describe 'claude commands' commands
   fi
 }
@@ -67,7 +67,7 @@ _claude_flags() {
 
     if [[ -n "${candidates}" ]]; then
       # スペース区切りを改行区切りに変換
-      flags=("${(@f)$(echo ${candidates} | tr ' ' '\n')}")
+      flags=("${(@f)$(printf '%s\n' "${candidates}" | tr ' ' '\n')}")
       _describe 'flags' flags
     fi
   fi
