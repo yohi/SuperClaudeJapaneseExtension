@@ -90,6 +90,17 @@ export class CompletionEngine {
     prefix: string,
     commandName?: string
   ): Result<CompletionCandidate[], CompletionError> {
+    // コマンド名が指定された場合、存在確認
+    if (commandName && !this.metadataLoader.hasCommand(commandName)) {
+      return {
+        ok: false,
+        error: {
+          type: 'INVALID_COMMAND',
+          command: commandName,
+        },
+      };
+    }
+
     // プレフィックスの正規化（--を除去）
     const normalizedPrefix = prefix.replace(/^--/, '').toLowerCase();
 

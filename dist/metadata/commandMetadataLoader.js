@@ -89,6 +89,13 @@ class CommandMetadataLoader {
         return this.commands.has(commandName);
     }
     /**
+     * コマンドメタデータを登録
+     * @param metadata コマンドメタデータ
+     */
+    registerCommand(metadata) {
+        this.commands.set(metadata.name, metadata);
+    }
+    /**
      * キャッシュをクリア
      */
     clearCache() {
