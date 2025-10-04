@@ -1,121 +1,184 @@
 #!/usr/bin/env node
 /**
- * シェル補完ヘルパースクリプト
+ * Claude Code 補完ヘルパースクリプト
+ *
+ * シェル補完スクリプト（bash/zsh）から呼び出され、
+ * CompletionEngineを使用して補完候補を返すCLIツール
  *
  * 使用方法:
- *   node get-hints.js command <prefix>
- *   node get-hints.js flag <command> <prefix>
+ *   node get-hints.js command <prefix>         # コマンド名補完
+ *   node get-hints.js flag <command> <prefix>  # フラグ補完
  *
- * 出力: スペース区切りの補完候補リスト
+ * 出力形式:
+ *   スペース区切りの候補リスト（標準出力）
+ *   エラーメッセージ（標準エラー出力）
  */
 
 import { CompletionEngine } from '../../completion/completionEngine';
 import { I18nManager } from '../../i18n/i18nManager';
 import { CommandMetadataLoader } from '../../metadata/commandMetadataLoader';
 import * as path from 'path';
+import * as os from 'os';
+
+/**
+ * 環境変数から設定を取得
+ */
+function getConfig() {
+  return {
+    locale: (process.env.CLAUDE_LANG || 'ja') as 'en' | 'ja',
+    commandsDir:
+      process.env.CLAUDE_COMMANDS_DIR ||
+      path.join(os.homedir(), '.claude', 'commands'),
+    translationsDir:
+      process.env.CLAUDE_I18N_DIR ||
+      path.join(__dirname, '../../../translations'),
+  };
+}
+
+/**
+ * CompletionEngineインスタンスを初期化
+ */
+async function initializeCompletionEngine(): Promise<CompletionEngine> {
+  const config = getConfig();
+
+  // 依存コンポーネントの初期化
+  const i18nManager = new I18nManager(config.translationsDir);
+  await i18nManager.initialize(config.locale);
+
+  const metadataLoader = new CommandMetadataLoader({
+    maxCacheSize: 100,
+    cacheTTL: 3600000, // 1時間
+  });
+
+  // TODO: コマンドメタデータを実際のコマンドディレクトリから読み込む
+  // 現時点ではダミーデータを使用
+  metadataLoader.registerCommand({
+    name: 'build',
+    description: 'Framework-detecting project builder',
+    category: 'Development',
+    flags: [
+      { name: 'think', description: 'Enable thinking mode' },
+      { name: 'plan', description: 'Enable planning mode' },
+    ],
+  });
+
+  metadataLoader.registerCommand({
+    name: 'implement',
+    description: 'Feature and code implementation',
+    category: 'Development',
+  });
+
+  metadataLoader.registerCommand({
+    name: 'analyze',
+    description: 'Code quality and security analysis',
+    category: 'Analysis',
+  });
+
+  const completionEngine = new CompletionEngine(metadataLoader, i18nManager);
+
+  return completionEngine;
+}
+
+/**
+ * コマンド名補完を処理
+ */
+async function handleCommandCompletion(
+  prefix: string,
+  engine: CompletionEngine
+): Promise<string> {
+  const result = engine.completeCommand(prefix);
+
+  if (!result.ok) {
+    return '';
+  }
+
+  // 候補をスペース区切りで返す（シェル補完形式）
+  return result.value.map((item) => item.name).join(' ');
+}
+
+/**
+ * フラグ補完を処理
+ */
+async function handleFlagCompletion(
+  command: string,
+  prefix: string,
+  engine: CompletionEngine
+): Promise<string> {
+  const result = engine.completeFlag(command, prefix);
+
+  if (!result.ok) {
+    return '';
+  }
+
+  // 候補をスペース区切りで返す（シェル補完形式）
+  return result.value.map((item) => item.name).join(' ');
+}
 
 /**
  * メイン処理
  */
 async function main(): Promise<void> {
-  try {
-    const args = process.argv.slice(2);
+  const args = process.argv.slice(2);
 
-    // 引数チェック
-    if (args.length < 2) {
-      // 引数不足の場合は何も出力しない
-      process.exit(0);
-    }
-
-    const completionType = args[0];
-    const locale = (process.env.CLAUDE_LANG as 'ja' | 'en') || 'ja';
-
-    // i18nManagerの初期化
-    // 実行時のパス: dist/completions/helpers/get-hints.js
-    // translationsディレクトリ: プロジェクトルート/translations
-    const translationsDir = path.join(__dirname, '../../../translations');
-    const i18nManager = new I18nManager(translationsDir);
-    const initResult = await i18nManager.initialize(locale);
-
-    if (!initResult.ok) {
-      // 初期化失敗時は何も出力しない
-      process.exit(0);
-    }
-
-    // CommandMetadataLoaderの初期化
-    const metadataLoader = new CommandMetadataLoader({
-      maxCacheSize: 100,
-      cacheTTL: 3600000, // 1 hour
-    });
-
-    // ダミーのコマンドメタデータを登録（テスト用）
-    // 実際の実装では、コマンドディレクトリから読み込む
-    metadataLoader.registerCommand({
-      name: 'build',
-      description: 'Framework-detecting project builder',
-      category: 'Development',
-      flags: [
-        {
-          name: 'think',
-          description: 'Enable thinking mode',
-        },
-        {
-          name: 'plan',
-          description: 'Enable planning mode',
-        },
-      ],
-    });
-
-    metadataLoader.registerCommand({
-      name: 'implement',
-      description: 'Feature and code implementation',
-      category: 'Development',
-    });
-
-    metadataLoader.registerCommand({
-      name: 'analyze',
-      description: 'Code quality and security analysis',
-      category: 'Analysis',
-    });
-
-    // CompletionEngineの初期化
-    const completionEngine = new CompletionEngine(
-      metadataLoader,
-      i18nManager
+  // 引数チェック
+  if (args.length < 2) {
+    console.error(
+      'Usage: node get-hints.js <type> <args...>\n' +
+        '  type: command | flag\n' +
+        '  Examples:\n' +
+        '    node get-hints.js command "b"\n' +
+        '    node get-hints.js flag "build" "--p"'
     );
+    process.exit(1);
+  }
 
-    let candidates: string[] = [];
+  const [type, ...rest] = args;
 
-    if (completionType === 'command') {
-      // コマンド名補完
-      const prefix = args[1];
-      const result = completionEngine.completeCommand(prefix);
+  try {
+    const engine = await initializeCompletionEngine();
 
-      if (result.ok) {
-        candidates = result.value.map((item) => item.name);
+    let output = '';
+
+    switch (type) {
+      case 'command': {
+        const prefix = rest[0] || '';
+        output = await handleCommandCompletion(prefix, engine);
+        break;
       }
-    } else if (completionType === 'flag') {
-      // フラグ補完
-      if (args.length < 3) {
-        process.exit(0);
+
+      case 'flag': {
+        if (rest.length < 2) {
+          console.error('Error: flag補完にはコマンド名とプレフィックスが必要です');
+          process.exit(1);
+        }
+        const [command, prefix] = rest;
+        output = await handleFlagCompletion(command, prefix, engine);
+        break;
       }
 
-      const commandName = args[1];
-      const prefix = args[2];
-      const result = completionEngine.completeFlag(prefix, commandName);
-
-      if (result.ok) {
-        candidates = result.value.map((item) => item.name);
-      }
+      default:
+        console.error(`Error: 不正な補完タイプ: ${type}`);
+        console.error('有効なタイプ: command, flag');
+        process.exit(1);
     }
 
-    // スペース区切りで出力
-    console.log(candidates.join(' '));
+    // 結果を標準出力に出力（シェル補完スクリプトが読み取る）
+    console.log(output);
+    process.exit(0);
   } catch (error) {
-    // エラー時は何も出力しない（シェルでエラーにならないように）
+    console.error('Error: 補完候補の取得に失敗しました', error);
+    // エラー時は空文字を出力（シェル補完が失敗しないように）
+    console.log('');
     process.exit(0);
   }
 }
 
-// スクリプト実行
-main();
+// スクリプトとして実行された場合のみmainを呼び出す
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('Fatal error:', error);
+    process.exit(1);
+  });
+}
+
+export { handleCommandCompletion, handleFlagCompletion, initializeCompletionEngine };

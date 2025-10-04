@@ -16,12 +16,16 @@ CLAUDE_HELPER_SCRIPT="${CLAUDE_HELPER_SCRIPT:-$HOME/.claude/extensions/japanese-
 # Claude補完関数
 _claude_completion() {
   local cur prev words cword
-  _init_completion || return
 
-  # 現在入力中の単語
-  cur="${COMP_WORDS[COMP_CWORD]}"
-  # 1つ前の単語
-  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  # bash-completionが利用可能な場合は使用
+  if declare -F _init_completion > /dev/null; then
+    _init_completion || return
+  else
+    # 手動で初期化
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+  fi
+
   # コマンド名（claude の次の単語）
   local cmd=""
   if [[ ${COMP_CWORD} -ge 2 ]]; then
