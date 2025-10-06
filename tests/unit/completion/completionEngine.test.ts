@@ -299,9 +299,22 @@ describe('CompletionEngine', () => {
       const result = completionEngine.completeArgument('build', 0, 'prod');
 
       expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.value[0].description).toBeDefined();
-        // 日本語の説明が含まれることを確認（環境に依存）
+      if (result.ok && result.value.length > 0) {
+        const description = result.value[0].description;
+        expect(typeof description).toBe('string');
+
+        // デバッグ用：実際の説明を確認
+        // console.log('Description:', description);
+
+        // 日本語文字（ひらがな、カタカナ、漢字）の正規表現
+        const japaneseRegex = /[\u3000-\u30FF\u4E00-\u9FFF]/;
+        // または特定の日本語キーワードを含むかチェック
+        const hasJapanese = japaneseRegex.test(description) ||
+          description.includes('本番') ||
+          description.includes('開発') ||
+          description.includes('環境');
+
+        expect(hasJapanese).toBe(true);
       }
     });
 

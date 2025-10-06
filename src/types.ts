@@ -32,6 +32,7 @@ export interface TranslationResource {
   commands: Record<string, CommandTranslation>;
   flags: Record<string, FlagTranslation>;
   errors: Record<string, string>;
+  arguments?: Record<string, Record<string, string>>;
 }
 
 /**
