@@ -1,5 +1,6 @@
 import { I18nManager } from '../i18n/i18nManager';
 import { CommandMetadataLoader } from '../metadata/commandMetadataLoader';
+import { FlagCombinationSuggestor } from './flagCombinationSuggestor';
 import { Result, CommandContext, ContextualHint, FlagSuggestion } from '../types';
 
 /**
@@ -9,10 +10,16 @@ import { Result, CommandContext, ContextualHint, FlagSuggestion } from '../types
 export class CommandContextAnalyzer {
   private i18nManager: I18nManager;
   private metadataLoader: CommandMetadataLoader;
+  private flagSuggestor: FlagCombinationSuggestor;
 
-  constructor(i18nManager: I18nManager, metadataLoader: CommandMetadataLoader) {
+  constructor(
+    i18nManager: I18nManager,
+    metadataLoader: CommandMetadataLoader,
+    flagSuggestor: FlagCombinationSuggestor
+  ) {
     this.i18nManager = i18nManager;
     this.metadataLoader = metadataLoader;
+    this.flagSuggestor = flagSuggestor;
   }
 
   /**
@@ -21,7 +28,16 @@ export class CommandContextAnalyzer {
    * @returns コマンドコンテキスト
    */
   analyzeContext(input: string): Result<CommandContext, never> {
-    const parts = input.trim().split(/\s+/);
+    // 先頭の空白のみを削除し、末尾の空白は保持してステージ検出に使用
+    const hasTrailingSpace = input.endsWith(' ');
+    const trimmedInput = input.trimStart();
+    const parts = trimmedInput.split(/\s+/);
+
+    // 末尾スペースがある場合、空トークンを追加してステージ遷移を検出
+    if (hasTrailingSpace && trimmedInput.length > 0) {
+      parts.push('');
+    }
+
     const command = parts[0]?.replace(/^\//, '') || '';
     const flags: string[] = [];
     const args: string[] = [];
@@ -29,18 +45,32 @@ export class CommandContextAnalyzer {
     for (let i = 1; i < parts.length; i++) {
       if (parts[i].startsWith('--')) {
         flags.push(parts[i]);
-      } else {
+      } else if (parts[i] !== '') {
+        // 空トークン以外を引数として追加
         args.push(parts[i]);
       }
     }
 
     // 現在の入力ステージを判定
     let stage: 'command' | 'flags' | 'arguments' = 'command';
-    if (flags.length > 0) {
-      stage = 'flags';
-    }
-    if (args.length > 0) {
-      stage = 'arguments';
+
+    // 末尾に空トークンがある場合、次のステージへ遷移
+    if (parts[parts.length - 1] === '') {
+      if (flags.length > 0) {
+        // フラグの後の空トークン -> 引数ステージ
+        stage = 'arguments';
+      } else if (command.length > 0) {
+        // コマンドの後の空トークン -> フラグステージ
+        stage = 'flags';
+      }
+    } else {
+      // 通常のステージ判定
+      if (flags.length > 0) {
+        stage = 'flags';
+      }
+      if (args.length > 0) {
+        stage = 'arguments';
+      }
     }
 
     return {
@@ -93,11 +123,52 @@ export class CommandContextAnalyzer {
 
     // フラグステージ: フラグサジェストを表示
     if (context.stage === 'flags' || input.endsWith('--')) {
-      const suggestions: FlagSuggestion[] = [
-        { flag: '--plan', reason: 'show_plan', description: this.translateFlag('plan') },
-        { flag: '--think', reason: 'show_thinking', description: this.translateFlag('think') },
-        { flag: '--uc', reason: 'compress_output', description: this.translateFlag('uc') },
-      ];
+      const suggestions: FlagSuggestion[] = [];
+
+      // 1. コマンドメタデータからフラグ定義を取得
+      const commandMetadata = this.metadataLoader.getCommand(context.command);
+      const commandFlags = commandMetadata?.flags || [];
+
+      // 2. 既存のフラグセットを作成
+      const existingFlags = new Set(context.flags);
+
+      // 3. 入力されているフラグと競合するフラグを特定
+      const conflictingFlags = new Set<string>();
+      // FlagCombinationSuggestorから競合定義を取得
+      // 既存フラグそれぞれについて競合フラグをチェック
+      for (const existingFlag of context.flags) {
+        // 全ての競合ペアをチェック
+        const allConflicts = (this.flagSuggestor as any).flagConflicts as Array<
+          [string, string, 'error' | 'warning', string]
+        >;
+        for (const [flag1, flag2] of allConflicts) {
+          if (existingFlag === flag1) {
+            conflictingFlags.add(flag2);
+          } else if (existingFlag === flag2) {
+            conflictingFlags.add(flag1);
+          }
+        }
+      }
+
+      // 4. 利用可能なフラグをフィルタリングしてマッピング
+      for (const flagMeta of commandFlags) {
+        const flagName = flagMeta.name.startsWith('--')
+          ? flagMeta.name
+          : `--${flagMeta.name}`;
+
+        // 既に入力されているフラグと競合フラグを除外
+        if (existingFlags.has(flagName) || conflictingFlags.has(flagName)) {
+          continue;
+        }
+
+        // FlagSuggestionにマッピング
+        const flagKey = flagName.replace(/^--/, '');
+        suggestions.push({
+          flag: flagName,
+          reason: flagMeta.description || 'flag_option',
+          description: this.translateFlag(flagKey),
+        });
+      }
 
       return {
         ok: true,
