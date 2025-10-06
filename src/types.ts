@@ -33,6 +33,9 @@ export interface TranslationResource {
   flags: Record<string, FlagTranslation>;
   errors: Record<string, string>;
   arguments?: Record<string, Record<string, string>>;
+  flag_suggestions?: Record<string, string>;
+  flag_examples?: Record<string, string>;
+  conflicts?: Record<string, string>;
 }
 
 /**
@@ -203,3 +206,55 @@ export interface HistoryManagerOptions {
 export type HistoryError =
   | { type: 'SAVE_FAILED'; message: string }
   | { type: 'LOAD_FAILED'; message: string };
+
+/**
+ * フラグサジェスト
+ */
+export interface FlagSuggestion {
+  /** サジェスト対象のフラグ */
+  flag: string;
+  /** サジェスト理由 */
+  reason: string;
+  /** 説明 */
+  description?: string;
+  /** 使用例 */
+  example?: string;
+}
+
+/**
+ * フラグ競合
+ */
+export interface FlagConflict {
+  /** 競合するフラグのリスト */
+  flags: string[];
+  /** 競合の重要度 */
+  severity: 'error' | 'warning';
+  /** 競合の説明 */
+  message: string;
+}
+
+/**
+ * コマンドコンテキスト
+ */
+export interface CommandContext {
+  /** コマンド名 */
+  command: string;
+  /** 指定されたフラグのリスト */
+  flags: string[];
+  /** 指定された引数のリスト */
+  arguments: string[];
+  /** 現在の入力ステージ */
+  stage: 'command' | 'flags' | 'arguments';
+}
+
+/**
+ * コンテキスト依存ヒント
+ */
+export interface ContextualHint {
+  /** ヒントテキスト */
+  hint: string;
+  /** ヒントの種類 */
+  type: 'command_description' | 'flag_suggestions' | 'argument_hint';
+  /** サジェスト */
+  suggestions: FlagSuggestion[];
+}
