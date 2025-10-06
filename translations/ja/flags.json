@@ -22,5 +22,29 @@
       "description": "開発者ペルソナとして動作",
       "example": "claude /implement --persona-developer"
     }
+  },
+  "flag_suggestions": {
+    "complex_analysis": "複雑な分析に最適",
+    "root_cause_analysis": "根本原因の分析に推奨",
+    "deep_analysis": "深い分析に適しています",
+    "pattern_research": "パターン調査に有効",
+    "architectural_analysis": "アーキテクチャ分析に推奨",
+    "critical_analysis": "重要な分析に必須",
+    "comprehensive_research": "包括的な調査に最適",
+    "maximum_capability": "最大限の機能を活用",
+    "ui_development": "UI開発に推奨",
+    "component_patterns": "コンポーネントパターンの参照に有効",
+    "testing_workflow": "テストワークフローに最適",
+    "test_planning": "テスト計画に推奨",
+    "token_optimization": "トークン最適化に有効"
+  },
+  "flag_examples": {
+    "--think_--seq": "/analyze --think --seq",
+    "--think_--persona-analyzer": "/troubleshoot --think --persona-analyzer"
+  },
+  "conflicts": {
+    "no_mcp_with_mcp_flag": "MCPサーバーを無効化するフラグと、MCPサーバーを使用するフラグは同時に使用できません",
+    "uc_with_verbose": "圧縮モードと詳細モードは同時使用すると効果が相殺されます",
+    "answer_only_with_plan": "即答モードと計画表示モードは同時に使用できません"
   }
 }

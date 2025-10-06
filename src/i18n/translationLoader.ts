@@ -80,6 +80,9 @@ export class TranslationLoader {
         flags: flagsData.flags || {},
         errors: errorsData.errors || {},
         arguments: argumentsData,
+        flag_suggestions: flagsData.flag_suggestions,
+        flag_examples: flagsData.flag_examples,
+        conflicts: flagsData.conflicts,
       };
 
       // バリデーション

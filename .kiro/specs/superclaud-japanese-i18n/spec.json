@@ -35,20 +35,21 @@
       "4.2",
       "4.3",
       "4.4",
+      "5",
       "5.1",
       "5.2",
       "5.3",
+      "5.4",
       "6",
       "6.1",
       "6.2",
-      "6.3"
-    ],
-    "in_progress_tasks": [
-      "5"
-    ],
-    "pending_tasks": [
-      "5",
+      "6.3",
       "7",
+      "7.1",
+      "7.2"
+    ],
+    "in_progress_tasks": [],
+    "pending_tasks": [
       "8",
       "9",
       "10",
@@ -56,16 +57,16 @@
       "12"
     ],
     "total_tasks": 12,
-    "completed_count": 5,
-    "completion_percentage": 42
+    "completed_count": 7,
+    "completion_percentage": 58
   },
   "test_results": {
-    "total_suites": 12,
-    "passed_suites": 12,
-    "total_tests": 191,
-    "passed_tests": 191,
+    "total_suites": 14,
+    "passed_suites": 14,
+    "total_tests": 217,
+    "passed_tests": 217,
     "failed_tests": 0,
-    "last_run": "2025-10-06T05:30:00Z"
+    "last_run": "2025-10-06T09:00:00Z"
   },
   "milestones": {
     "task_1_completed": {
@@ -218,6 +219,23 @@
         "11の統合テストケース（全テストパス）",
         "動作確認（bash環境でコマンド・フラグ補完）"
       ]
+    },
+    "task_7_completed": {
+      "date": "2025-10-06T08:00:00Z",
+      "description": "コンテキスト依存機能の実装完了",
+      "deliverables": [
+        "FlagCombinationSuggestor実装（8テストケース）",
+        "フラグ関連性マッピング（--think→--seq等）",
+        "競合フラグ検出機能（--no-mcp vs --seq等）",
+        "ローカライズされた使用例提供",
+        "CommandContextAnalyzer実装（15テストケース）",
+        "コマンド入力状態の解析機能（末尾スペースによるステージ遷移検出対応）",
+        "動的フラグロード（コマンドメタデータから動的に読み込み）",
+        "既入力フラグと競合フラグの除外機能",
+        "動的ヒント生成（<100ms）",
+        "翻訳データ拡張（flag_suggestions、flag_examples、conflicts）",
+        "23テストケース（全テストパス）"
+      ]
     }
   },
   "components_implemented": [
@@ -288,6 +306,20 @@
       "path": "completions/zsh/_claude",
       "tests": "manual",
       "status": "completed"
+    },
+    {
+      "name": "FlagCombinationSuggestor",
+      "path": "src/hint/flagCombinationSuggestor.ts",
+      "tests": "tests/unit/hint/flagCombinationSuggestor.test.ts",
+      "test_count": 8,
+      "status": "completed"
+    },
+    {
+      "name": "CommandContextAnalyzer",
+      "path": "src/hint/commandContextAnalyzer.ts",
+      "tests": "tests/unit/hint/commandContextAnalyzer.test.ts",
+      "test_count": 15,
+      "status": "completed"
     }
   ],
   "translation_data": {
@@ -302,8 +334,12 @@
     "total_translations": 28
   },
   "next_task": {
-    "id": "5",
-    "name": "補完機能の実装",
-    "subtasks": []
+    "id": "8",
+    "name": "翻訳データの作成",
+    "subtasks": [
+      "8.1",
+      "8.2",
+      "8.3"
+    ]
   }
 }
