@@ -343,5 +343,49 @@ describe('CompletionEngine', () => {
         expect(allStartWithDev).toBe(true);
       }
     });
+
+    it('should preserve user input prefix for relative paths', () => {
+      const result = completionEngine.completeArgument('build', 0, './src/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // 全ての候補が ./ プレフィックスで始まることを確認
+        const allStartWithDotSlash = result.value.every((c: CompletionItem) =>
+          c.value.startsWith('./')
+        );
+        expect(allStartWithDotSlash).toBe(true);
+      }
+    });
+
+    it('should expand tilde for home directory paths', () => {
+      const result = completionEngine.completeArgument('build', 0, '~/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // チルダが展開されてファイルシステム操作が成功していることを確認
+        // （結果があるか、エラーが発生していないことを確認）
+        expect(result.value).toBeDefined();
+        // 候補が返された場合、全て ~/ で始まることを確認
+        if (result.value.length > 0) {
+          const allStartWithTilde = result.value.every((c: CompletionItem) =>
+            c.value.startsWith('~/')
+          );
+          expect(allStartWithTilde).toBe(true);
+        }
+      }
+    });
+
+    it('should normalize path separators to forward slashes', () => {
+      const result = completionEngine.completeArgument('build', 0, './src/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.length > 0) {
+        // 全ての候補がバックスラッシュを含まないことを確認
+        const noBackslashes = result.value.every((c: CompletionItem) =>
+          !c.value.includes('\\')
+        );
+        expect(noBackslashes).toBe(true);
+      }
+    });
   });
 });

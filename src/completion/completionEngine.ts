@@ -13,6 +13,7 @@ import type {
 } from '../types';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 /**
  * 補完エンジンクラス
@@ -254,39 +255,83 @@ export class CompletionEngine {
   private getFilePathCompletions(currentValue: string): CompletionItem[] {
     const candidates: CompletionItem[] = [];
 
-    // @記法の場合、@を除去してパスを取得
-    const isAtNotation = currentValue.startsWith('@');
-    const actualPath = isAtNotation ? currentValue.slice(1) : currentValue;
-
     try {
+      // @記法の検出とプレフィックス抽出
+      const isAtNotation = currentValue.startsWith('@');
+      const pathWithoutAt = isAtNotation ? currentValue.slice(1) : currentValue;
+
+      // ユーザー入力プレフィックスの保持（./, ../, /, ~/）
+      let originalPrefix = '';
+      let pathForParsing = pathWithoutAt;
+
+      if (pathWithoutAt.startsWith('~/')) {
+        originalPrefix = '~/';
+        pathForParsing = pathWithoutAt;
+      } else if (pathWithoutAt.startsWith('./')) {
+        originalPrefix = './';
+        pathForParsing = pathWithoutAt;
+      } else if (pathWithoutAt.startsWith('../')) {
+        originalPrefix = '../';
+        pathForParsing = pathWithoutAt;
+      } else if (pathWithoutAt.startsWith('/')) {
+        originalPrefix = '/';
+        pathForParsing = pathWithoutAt;
+      }
+
+      // ファイルシステム操作用パスの構築（~ 展開、相対パス解決）
+      let fsPath: string;
+      if (pathWithoutAt.startsWith('~/')) {
+        // ~ をホームディレクトリに展開
+        fsPath = path.join(os.homedir(), pathWithoutAt.slice(2));
+      } else if (pathWithoutAt.startsWith('/')) {
+        // 絶対パス
+        fsPath = pathWithoutAt;
+      } else {
+        // 相対パス（カレントディレクトリから解決）
+        fsPath = path.resolve(process.cwd(), pathWithoutAt);
+      }
+
       // パスの解析
-      let basePath: string;
+      let fsBasePath: string;
       let filePrefix: string;
 
       // 末尾が/の場合はディレクトリ全体を表示
-      if (actualPath.endsWith('/')) {
-        basePath = actualPath;
+      if (pathForParsing.endsWith('/')) {
+        fsBasePath = fsPath;
         filePrefix = '';
       } else {
-        basePath = path.dirname(actualPath);
-        filePrefix = path.basename(actualPath);
+        fsBasePath = path.dirname(fsPath);
+        filePrefix = path.basename(fsPath);
       }
 
       // ディレクトリの存在確認
-      if (fs.existsSync(basePath)) {
-        const entries = fs.readdirSync(basePath);
+      if (fs.existsSync(fsBasePath)) {
+        const entries = fs.readdirSync(fsBasePath);
 
         for (const entry of entries) {
           // プレフィックスマッチング
           if (entry.toLowerCase().startsWith(filePrefix.toLowerCase())) {
-            const fullPath = path.join(basePath, entry);
-            const stats = fs.statSync(fullPath);
+            const entryFsPath = path.join(fsBasePath, entry);
+            const stats = fs.statSync(entryFsPath);
             const isDirectory = stats.isDirectory();
 
-            // 相対パスとして構築
-            const value = isAtNotation
-              ? `@${fullPath}`
-              : fullPath;
+            // 表示用パスの構築（ユーザープレフィックス保持、セパレータ正規化）
+            let displayPath: string;
+            if (pathForParsing.endsWith('/')) {
+              // ディレクトリ全体を表示する場合
+              displayPath = (originalPrefix + entry).replace(/\\/g, '/');
+            } else {
+              // プレフィックスマッチング中の場合
+              const basePart = path.dirname(pathForParsing);
+              if (basePart === '.') {
+                displayPath = (originalPrefix + entry).replace(/\\/g, '/');
+              } else {
+                displayPath = (basePart + '/' + entry).replace(/\\/g, '/');
+              }
+            }
+
+            // @記法の場合は @ を先頭に追加
+            const value = isAtNotation ? `@${displayPath}` : displayPath;
 
             // 説明の翻訳キー取得
             const descKey = isDirectory
@@ -297,7 +342,7 @@ export class CompletionEngine {
               ? `${descResult.value}: ${entry}`
               : entry;
 
-            // スコア計算
+            // スコア計算（エントリ名のみを使用）
             const score = this.calculateArgumentScore(entry, filePrefix);
 
             candidates.push({
