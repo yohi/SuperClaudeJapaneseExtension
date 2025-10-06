@@ -1,0 +1,12 @@
+{
+  "path": {
+    "directory": "Directory",
+    "file": "File"
+  },
+  "env": {
+    "production": "Production environment",
+    "development": "Development environment",
+    "staging": "Staging environment",
+    "test": "Test environment"
+  }
+}
