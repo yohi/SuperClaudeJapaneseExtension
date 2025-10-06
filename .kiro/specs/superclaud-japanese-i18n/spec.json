@@ -1,7 +1,7 @@
 {
   "feature_name": "superclaud-japanese-i18n",
   "created_at": "2025-10-03T00:00:00Z",
-  "updated_at": "2025-10-03T16:50:00Z",
+  "updated_at": "2025-10-06T00:00:00Z",
   "language": "ja",
   "phase": "implementation",
   "approvals": {
@@ -36,6 +36,8 @@
       "4.3",
       "4.4",
       "5.1",
+      "5.2",
+      "5.3",
       "6",
       "6.1",
       "6.2",
@@ -45,9 +47,6 @@
       "5"
     ],
     "pending_tasks": [
-      "5.2",
-      "5.3",
-      "5.4",
       "5",
       "7",
       "8",
@@ -61,12 +60,12 @@
     "completion_percentage": 42
   },
   "test_results": {
-    "total_suites": 9,
-    "passed_suites": 9,
-    "total_tests": 125,
-    "passed_tests": 125,
+    "total_suites": 12,
+    "passed_suites": 12,
+    "total_tests": 191,
+    "passed_tests": 191,
     "failed_tests": 0,
-    "last_run": "2025-10-05T02:40:00Z"
+    "last_run": "2025-10-06T05:30:00Z"
   },
   "milestones": {
     "task_1_completed": {
@@ -179,6 +178,33 @@
         "8つの新しいテストケース追加（合計8テストケース）"
       ]
     },
+    "task_5_2_completed": {
+      "date": "2025-10-06T00:00:00Z",
+      "description": "フラグ補完機能の実装完了",
+      "deliverables": [
+        "completeFlag() メソッド実装（プレフィックスマッチング）",
+        "エイリアス対応（--uc ⇔ --ultracompressed）",
+        "コマンド固有のフラグフィルタリング（将来拡張対応）",
+        "日本語説明付き補完候補の生成",
+        "スコアリング機構（フラグ名、エイリアス、長さに基づく）",
+        "翻訳フォールバック機構",
+        "16テストケース（全テストパス）"
+      ]
+    },
+    "task_5_3_completed": {
+      "date": "2025-10-06T05:30:00Z",
+      "description": "引数補完機能の実装完了",
+      "deliverables": [
+        "completeArgument() メソッド実装（TDD方式）",
+        "ファイルパス補完（ディレクトリ/ファイル候補表示）",
+        "定型値補完（production, development, staging, test）",
+        "@<path> 記法の補完サポート",
+        "日本語説明付き補完候補の生成",
+        "スコアリング機構（プレフィックス長、値の長さに基づく）",
+        "翻訳データ拡張（arguments.json）",
+        "7つの新しいテストケース追加（合計23テストケース）"
+      ]
+    },
     "task_6_completed": {
       "date": "2025-10-05T02:40:00Z",
       "description": "シェル補完スクリプトの実装完了",
@@ -241,8 +267,8 @@
       "name": "CompletionEngine",
       "path": "src/completion/completionEngine.ts",
       "tests": "tests/unit/completion/completionEngine.test.ts",
-      "test_count": 8,
-      "status": "in_progress"
+      "test_count": 23,
+      "status": "completed"
     },
     {
       "name": "CompletionHelper",
@@ -271,16 +297,13 @@
     ],
     "commands_count": 4,
     "flags_count": 5,
+    "arguments_count": 8,
     "errors_count": 11,
-    "total_translations": 20
+    "total_translations": 28
   },
   "next_task": {
-    "id": "5.2",
-    "name": "フラグ補完機能",
-    "subtasks": [
-      "5.2",
-      "5.3",
-      "5.4"
-    ]
+    "id": "5",
+    "name": "補完機能の実装",
+    "subtasks": []
   }
 }

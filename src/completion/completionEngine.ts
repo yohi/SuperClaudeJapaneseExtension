@@ -7,9 +7,13 @@ import type { CommandMetadataLoader } from '../metadata/commandMetadataLoader';
 import type { I18nManager } from '../i18n/i18nManager';
 import type {
   CompletionCandidate,
+  CompletionItem,
   CompletionError,
   Result,
 } from '../types';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 
 /**
  * 補完エンジンクラス
@@ -186,6 +190,235 @@ export class CompletionEngine {
     // - コマンド名が短いほど高スコア
     const prefixRatio = prefix.length / commandName.length;
     const lengthPenalty = 1.0 / (1.0 + commandName.length / 10.0);
+
+    return 0.6 + prefixRatio * 0.3 + lengthPenalty * 0.1;
+  }
+
+  /**
+   * 引数補完
+   * @param commandName コマンド名
+   * @param argumentIndex 引数インデックス
+   * @param currentValue 現在の入力値
+   * @returns 補完候補リスト
+   */
+  completeArgument(
+    commandName: string,
+    argumentIndex: number,
+    currentValue: string
+  ): Result<CompletionItem[], CompletionError> {
+    // コマンドの存在確認
+    if (!this.metadataLoader.hasCommand(commandName)) {
+      return {
+        ok: false,
+        error: {
+          type: 'INVALID_COMMAND',
+          command: commandName,
+        },
+      };
+    }
+
+    const candidates: CompletionItem[] = [];
+
+    // ファイルパス補完の検出
+    const isFilePath =
+      currentValue.startsWith('./') ||
+      currentValue.startsWith('../') ||
+      currentValue.startsWith('/') ||
+      currentValue.startsWith('~/');
+    const isAtNotation = currentValue.startsWith('@');
+
+    if (isFilePath || isAtNotation) {
+      // ファイルパス補完
+      const pathCandidates = this.getFilePathCompletions(currentValue);
+      candidates.push(...pathCandidates);
+    } else {
+      // 定型値補完
+      const predefinedCandidates =
+        this.getPredefinedValueCompletions(currentValue);
+      candidates.push(...predefinedCandidates);
+    }
+
+    // スコア順にソート（降順）
+    candidates.sort((a, b) => b.score - a.score);
+
+    return {
+      ok: true,
+      value: candidates,
+    };
+  }
+
+  /**
+   * ファイルパス補完候補を取得
+   * @param currentValue 現在の入力値
+   * @returns 補完候補リスト
+   */
+  private getFilePathCompletions(currentValue: string): CompletionItem[] {
+    const candidates: CompletionItem[] = [];
+
+    try {
+      // @記法の検出とプレフィックス抽出
+      const isAtNotation = currentValue.startsWith('@');
+      const pathWithoutAt = isAtNotation ? currentValue.slice(1) : currentValue;
+
+      // ユーザー入力プレフィックスの保持（./, ../, /, ~/）
+      let originalPrefix = '';
+      let pathForParsing = pathWithoutAt;
+
+      if (pathWithoutAt.startsWith('~/')) {
+        originalPrefix = '~/';
+        pathForParsing = pathWithoutAt;
+      } else if (pathWithoutAt.startsWith('./')) {
+        originalPrefix = './';
+        pathForParsing = pathWithoutAt;
+      } else if (pathWithoutAt.startsWith('../')) {
+        originalPrefix = '../';
+        pathForParsing = pathWithoutAt;
+      } else if (pathWithoutAt.startsWith('/')) {
+        originalPrefix = '/';
+        pathForParsing = pathWithoutAt;
+      }
+
+      // ファイルシステム操作用パスの構築（~ 展開、相対パス解決）
+      let fsPath: string;
+      if (pathWithoutAt.startsWith('~/')) {
+        // ~ をホームディレクトリに展開
+        fsPath = path.join(os.homedir(), pathWithoutAt.slice(2));
+      } else if (pathWithoutAt.startsWith('/')) {
+        // 絶対パス
+        fsPath = pathWithoutAt;
+      } else {
+        // 相対パス（カレントディレクトリから解決）
+        fsPath = path.resolve(process.cwd(), pathWithoutAt);
+      }
+
+      // パスの解析
+      let fsBasePath: string;
+      let filePrefix: string;
+
+      // 末尾が/の場合はディレクトリ全体を表示
+      if (pathForParsing.endsWith('/')) {
+        fsBasePath = fsPath;
+        filePrefix = '';
+      } else {
+        fsBasePath = path.dirname(fsPath);
+        filePrefix = path.basename(fsPath);
+      }
+
+      // ディレクトリの存在確認
+      if (fs.existsSync(fsBasePath)) {
+        const entries = fs.readdirSync(fsBasePath);
+
+        for (const entry of entries) {
+          // プレフィックスマッチング
+          if (entry.toLowerCase().startsWith(filePrefix.toLowerCase())) {
+            const entryFsPath = path.join(fsBasePath, entry);
+            const stats = fs.statSync(entryFsPath);
+            const isDirectory = stats.isDirectory();
+
+            // 表示用パスの構築（ユーザープレフィックス保持、セパレータ正規化）
+            let displayPath: string;
+            if (pathForParsing.endsWith('/')) {
+              // ディレクトリ全体を表示する場合
+              displayPath = (originalPrefix + entry).replace(/\\/g, '/');
+            } else {
+              // プレフィックスマッチング中の場合
+              const basePart = path.dirname(pathForParsing);
+              if (basePart === '.') {
+                displayPath = (originalPrefix + entry).replace(/\\/g, '/');
+              } else {
+                displayPath = (basePart + '/' + entry).replace(/\\/g, '/');
+              }
+            }
+
+            // @記法の場合は @ を先頭に追加
+            const value = isAtNotation ? `@${displayPath}` : displayPath;
+
+            // 説明の翻訳キー取得
+            const descKey = isDirectory
+              ? 'arguments.path.directory'
+              : 'arguments.path.file';
+            const descResult = this.i18nManager.translate(descKey);
+            const description = descResult.ok
+              ? `${descResult.value}: ${entry}`
+              : entry;
+
+            // スコア計算（エントリ名のみを使用）
+            const score = this.calculateArgumentScore(entry, filePrefix);
+
+            candidates.push({
+              value,
+              description,
+              score,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      // ファイルシステムエラーは無視
+    }
+
+    return candidates;
+  }
+
+  /**
+   * 定型値補完候補を取得
+   * @param currentValue 現在の入力値
+   * @returns 補完候補リスト
+   */
+  private getPredefinedValueCompletions(
+    currentValue: string
+  ): CompletionItem[] {
+    const candidates: CompletionItem[] = [];
+
+    // よく使われる定型値（将来的にはコマンドメタデータから取得）
+    const predefinedValues = [
+      { value: 'production', descKey: 'arguments.env.production' },
+      { value: 'development', descKey: 'arguments.env.development' },
+      { value: 'staging', descKey: 'arguments.env.staging' },
+      { value: 'test', descKey: 'arguments.env.test' },
+    ];
+
+    for (const { value, descKey } of predefinedValues) {
+      // プレフィックスマッチング
+      if (value.toLowerCase().startsWith(currentValue.toLowerCase())) {
+        // 説明の翻訳取得
+        const descResult = this.i18nManager.translate(descKey);
+        const description = descResult.ok ? descResult.value : value;
+
+        // スコア計算
+        const score = this.calculateArgumentScore(value, currentValue);
+
+        candidates.push({
+          value,
+          description,
+          score,
+        });
+      }
+    }
+
+    return candidates;
+  }
+
+  /**
+   * 引数スコアの計算
+   * @param argValue 引数値
+   * @param prefix 入力プレフィックス
+   * @returns スコア（0.0-1.0）
+   */
+  private calculateArgumentScore(argValue: string, prefix: string): number {
+    if (argValue === prefix) {
+      // 完全一致
+      return 1.0;
+    }
+
+    if (prefix.length === 0) {
+      // プレフィックスが空の場合
+      return 0.5;
+    }
+
+    // プレフィックスマッチのスコア
+    const prefixRatio = prefix.length / argValue.length;
+    const lengthPenalty = 1.0 / (1.0 + argValue.length / 10.0);
 
     return 0.6 + prefixRatio * 0.3 + lengthPenalty * 0.1;
   }

@@ -40,8 +40,9 @@ export class TranslationLoader {
       const commandsPath = this.getTranslationPath(locale, 'commands');
       const flagsPath = this.getTranslationPath(locale, 'flags');
       const errorsPath = this.getTranslationPath(locale, 'errors');
+      const argumentsPath = this.getTranslationPath(locale, 'arguments');
 
-      // ファイルの存在確認
+      // ファイルの存在確認（argumentsはオプショナル）
       const filesExist = await Promise.all([
         this.fileExists(commandsPath),
         this.fileExists(flagsPath),
@@ -65,12 +66,20 @@ export class TranslationLoader {
         this.readJsonFile(errorsPath),
       ]);
 
+      // argumentsファイルはオプショナル
+      let argumentsData = {};
+      const argumentsExists = await this.fileExists(argumentsPath);
+      if (argumentsExists) {
+        argumentsData = await this.readJsonFile(argumentsPath);
+      }
+
       // 翻訳リソースを統合
       const resource: TranslationResource = {
         version: commandsData.version || '1.0.0',
         commands: commandsData.commands || {},
         flags: flagsData.flags || {},
         errors: errorsData.errors || {},
+        arguments: argumentsData,
       };
 
       // バリデーション

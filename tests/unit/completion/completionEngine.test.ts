@@ -5,7 +5,7 @@
 import { CompletionEngine } from '../../../src/completion/completionEngine';
 import { I18nManager } from '../../../src/i18n/i18nManager';
 import { CommandMetadataLoader } from '../../../src/metadata/commandMetadataLoader';
-import type { CompletionCandidate } from '../../../src/types';
+import type { CompletionCandidate, CompletionItem } from '../../../src/types';
 import * as path from 'path';
 
 describe('CompletionEngine', () => {
@@ -248,6 +248,156 @@ describe('CompletionEngine', () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value[0].description).toContain('plan');
+      }
+    });
+  });
+
+  describe('completeArgument', () => {
+    it('should complete file path arguments', () => {
+      const result = completionEngine.completeArgument('build', 0, './src/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.length).toBeGreaterThan(0);
+        // ファイルパス候補が含まれることを確認
+        const hasFilePath = result.value.some((c: CompletionItem) =>
+          c.value.includes('/')
+        );
+        expect(hasFilePath).toBe(true);
+      }
+    });
+
+    it('should complete @<path> notation', () => {
+      const result = completionEngine.completeArgument('build', 0, '@./src/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.length).toBeGreaterThan(0);
+        // @記法の候補が含まれることを確認
+        const hasAtNotation = result.value.some((c: CompletionItem) =>
+          c.value.startsWith('@')
+        );
+        expect(hasAtNotation).toBe(true);
+      }
+    });
+
+    it('should complete predefined values for argument', () => {
+      const result = completionEngine.completeArgument('build', 0, 'prod');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // 定型値候補が含まれることを確認（例: production, development）
+        const hasPredefinedValue = result.value.some(
+          (c: CompletionItem) =>
+            c.value === 'production' || c.value === 'development'
+        );
+        expect(hasPredefinedValue).toBe(true);
+      }
+    });
+
+    it('should include Japanese description for arguments', () => {
+      const result = completionEngine.completeArgument('build', 0, 'prod');
+
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.length > 0) {
+        const description = result.value[0].description;
+        expect(typeof description).toBe('string');
+
+        // デバッグ用：実際の説明を確認
+        // console.log('Description:', description);
+
+        // 日本語文字（ひらがな、カタカナ、漢字）の正規表現
+        const japaneseRegex = /[\u3000-\u30FF\u4E00-\u9FFF]/;
+        // または特定の日本語キーワードを含むかチェック
+        const hasJapanese = japaneseRegex.test(description) ||
+          description.includes('本番') ||
+          description.includes('開発') ||
+          description.includes('環境');
+
+        expect(hasJapanese).toBe(true);
+      }
+    });
+
+    it('should return empty list when no matches', () => {
+      const result = completionEngine.completeArgument(
+        'build',
+        0,
+        'nonexistent'
+      );
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.length).toBe(0);
+      }
+    });
+
+    it('should handle invalid command gracefully', () => {
+      const result = completionEngine.completeArgument(
+        'nonexistent-command',
+        0,
+        'test'
+      );
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.type).toBe('INVALID_COMMAND');
+      }
+    });
+
+    it('should filter by current input prefix', () => {
+      const result = completionEngine.completeArgument('build', 0, 'dev');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // 'dev'で始まる候補のみが返されることを確認
+        const allStartWithDev = result.value.every((c: CompletionItem) =>
+          c.value.toLowerCase().startsWith('dev')
+        );
+        expect(allStartWithDev).toBe(true);
+      }
+    });
+
+    it('should preserve user input prefix for relative paths', () => {
+      const result = completionEngine.completeArgument('build', 0, './src/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // 全ての候補が ./ プレフィックスで始まることを確認
+        const allStartWithDotSlash = result.value.every((c: CompletionItem) =>
+          c.value.startsWith('./')
+        );
+        expect(allStartWithDotSlash).toBe(true);
+      }
+    });
+
+    it('should expand tilde for home directory paths', () => {
+      const result = completionEngine.completeArgument('build', 0, '~/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // チルダが展開されてファイルシステム操作が成功していることを確認
+        // （結果があるか、エラーが発生していないことを確認）
+        expect(result.value).toBeDefined();
+        // 候補が返された場合、全て ~/ で始まることを確認
+        if (result.value.length > 0) {
+          const allStartWithTilde = result.value.every((c: CompletionItem) =>
+            c.value.startsWith('~/')
+          );
+          expect(allStartWithTilde).toBe(true);
+        }
+      }
+    });
+
+    it('should normalize path separators to forward slashes', () => {
+      const result = completionEngine.completeArgument('build', 0, './src/');
+
+      expect(result.ok).toBe(true);
+      if (result.ok && result.value.length > 0) {
+        // 全ての候補がバックスラッシュを含まないことを確認
+        const noBackslashes = result.value.every((c: CompletionItem) =>
+          !c.value.includes('\\')
+        );
+        expect(noBackslashes).toBe(true);
       }
     });
   });

@@ -1,0 +1,12 @@
+{
+  "path": {
+    "directory": "ディレクトリ",
+    "file": "ファイル"
+  },
+  "env": {
+    "production": "本番環境",
+    "development": "開発環境",
+    "staging": "ステージング環境",
+    "test": "テスト環境"
+  }
+}
