@@ -7,7 +7,7 @@ allowed-tools:
   - read_file
   - write_file
   - run_terminal_cmd
-category: Development
+category: 開発・デプロイ
 ---
 
 # Build Command
