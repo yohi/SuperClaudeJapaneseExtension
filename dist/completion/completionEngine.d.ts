@@ -4,7 +4,7 @@
  */
 import type { CommandMetadataLoader } from '../metadata/commandMetadataLoader';
 import type { I18nManager } from '../i18n/i18nManager';
-import type { CompletionCandidate, CompletionError, Result } from '../types';
+import type { CompletionCandidate, CompletionItem, CompletionError, Result } from '../types';
 /**
  * 補完エンジンクラス
  */
@@ -32,6 +32,33 @@ export declare class CompletionEngine {
      * @returns スコア（0.0-1.0）
      */
     private calculateCommandScore;
+    /**
+     * 引数補完
+     * @param commandName コマンド名
+     * @param argumentIndex 引数インデックス
+     * @param currentValue 現在の入力値
+     * @returns 補完候補リスト
+     */
+    completeArgument(commandName: string, argumentIndex: number, currentValue: string): Result<CompletionItem[], CompletionError>;
+    /**
+     * ファイルパス補完候補を取得
+     * @param currentValue 現在の入力値
+     * @returns 補完候補リスト
+     */
+    private getFilePathCompletions;
+    /**
+     * 定型値補完候補を取得
+     * @param currentValue 現在の入力値
+     * @returns 補完候補リスト
+     */
+    private getPredefinedValueCompletions;
+    /**
+     * 引数スコアの計算
+     * @param argValue 引数値
+     * @param prefix 入力プレフィックス
+     * @returns スコア（0.0-1.0）
+     */
+    private calculateArgumentScore;
     /**
      * フラグスコアの計算
      * @param flagName フラグ名（--なし）

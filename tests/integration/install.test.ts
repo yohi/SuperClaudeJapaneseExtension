@@ -6,20 +6,157 @@ import * as os from 'os';
 describe('Install Script', () => {
   const testDir = path.join(os.tmpdir(), 'superclaude-i18n-test');
   const installScript = path.join(__dirname, '../../scripts/install.sh');
+  let originalHome: string;
 
   beforeEach(() => {
+    // 元のHOMEを保存
+    originalHome = process.env.HOME || '';
+
     // テスト用ディレクトリを作成
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true });
     }
     fs.mkdirSync(testDir, { recursive: true });
+
+    // インストール先をサンドボックス化
+    process.env.HOME = testDir;
   });
 
   afterEach(() => {
+    // HOME環境変数を復元
+    process.env.HOME = originalHome;
+
     // クリーンアップ
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true });
     }
+  });
+
+  describe('インストールスクリプトの実行', () => {
+    it('install.sh を実行して期待アーティファクトが生成される', () => {
+      // スクリプトを実行
+      execSync(`bash "${installScript}"`, {
+        stdio: 'inherit',
+        env: { ...process.env, HOME: testDir },
+      });
+
+      // インストール先のベースディレクトリ
+      const base = path.join(testDir, '.claude/extensions/japanese-i18n');
+
+      // ディレクトリ構造の検証
+      expect(fs.existsSync(path.join(base, 'dist'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'translations/ja'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'translations/en'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'completions/bash'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'completions/zsh'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'completions/helpers'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'logs'))).toBe(true);
+      expect(fs.existsSync(path.join(base, 'schemas'))).toBe(true);
+
+      // 設定ファイルの検証
+      const configPath = path.join(base, 'config.json');
+      expect(fs.existsSync(configPath)).toBe(true);
+
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      expect(config.locale).toBe('ja');
+      expect(config.logLevel).toBe('INFO');
+      expect(config.cacheTtl).toBe(3600000);
+      expect(config.enableCompletion).toBe(true);
+      expect(config.completionHistorySize).toBe(1000);
+
+      // シェル設定ファイルの検証
+      const bashrcPath = path.join(testDir, '.bashrc');
+      const zshrcPath = path.join(testDir, '.zshrc');
+
+      if (fs.existsSync(bashrcPath)) {
+        const bashrcContent = fs.readFileSync(bashrcPath, 'utf-8');
+        expect(bashrcContent).toContain('SuperClaude Japanese Extension completion');
+        expect(bashrcContent).toContain('claude-complete.bash');
+      }
+
+      if (fs.existsSync(zshrcPath)) {
+        const zshrcContent = fs.readFileSync(zshrcPath, 'utf-8');
+        expect(zshrcContent).toContain('SuperClaude Japanese Extension completion');
+        expect(zshrcContent).toContain('autoload -Uz compinit');
+      }
+    });
+
+    it('既存の設定ファイルがある場合は上書きしない', () => {
+      // 先に設定ファイルを作成
+      const base = path.join(testDir, '.claude/extensions/japanese-i18n');
+      fs.mkdirSync(base, { recursive: true });
+
+      const configPath = path.join(base, 'config.json');
+      const existingConfig = {
+        locale: 'en',
+        logLevel: 'DEBUG',
+        cacheTtl: 7200000,
+        enableCompletion: false,
+        completionHistorySize: 500,
+      };
+      fs.writeFileSync(configPath, JSON.stringify(existingConfig, null, 2));
+
+      // インストールスクリプトを実行
+      execSync(`bash "${installScript}"`, {
+        stdio: 'inherit',
+        env: { ...process.env, HOME: testDir },
+      });
+
+      // 設定ファイルが上書きされていないことを確認
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      expect(config.locale).toBe('en');
+      expect(config.logLevel).toBe('DEBUG');
+      expect(config.cacheTtl).toBe(7200000);
+      expect(config.enableCompletion).toBe(false);
+      expect(config.completionHistorySize).toBe(500);
+    });
+
+    it('重複してインストールしても補完設定が重複追加されない', () => {
+      // 1回目のインストール
+      execSync(`bash "${installScript}"`, {
+        stdio: 'inherit',
+        env: { ...process.env, HOME: testDir },
+      });
+
+      const bashrcPath = path.join(testDir, '.bashrc');
+      const zshrcPath = path.join(testDir, '.zshrc');
+
+      let firstBashrcContent = '';
+      let firstZshrcContent = '';
+
+      if (fs.existsSync(bashrcPath)) {
+        firstBashrcContent = fs.readFileSync(bashrcPath, 'utf-8');
+      }
+
+      if (fs.existsSync(zshrcPath)) {
+        firstZshrcContent = fs.readFileSync(zshrcPath, 'utf-8');
+      }
+
+      // 2回目のインストール
+      execSync(`bash "${installScript}"`, {
+        stdio: 'inherit',
+        env: { ...process.env, HOME: testDir },
+      });
+
+      // 補完設定が重複していないことを確認
+      if (fs.existsSync(bashrcPath)) {
+        const secondBashrcContent = fs.readFileSync(bashrcPath, 'utf-8');
+        expect(secondBashrcContent).toBe(firstBashrcContent);
+
+        // "SuperClaude Japanese Extension completion"が1回だけ出現することを確認
+        const matches = secondBashrcContent.match(/SuperClaude Japanese Extension completion/g);
+        expect(matches?.length).toBe(1);
+      }
+
+      if (fs.existsSync(zshrcPath)) {
+        const secondZshrcContent = fs.readFileSync(zshrcPath, 'utf-8');
+        expect(secondZshrcContent).toBe(firstZshrcContent);
+
+        // "SuperClaude Japanese Extension completion"が1回だけ出現することを確認
+        const matches = secondZshrcContent.match(/SuperClaude Japanese Extension completion/g);
+        expect(matches?.length).toBe(1);
+      }
+    });
   });
 
   describe('依存ライブラリのチェック', () => {
@@ -33,137 +170,6 @@ describe('Install Script', () => {
     it('npmが利用可能であることを確認する', () => {
       const result = execSync('npm --version', { encoding: 'utf-8' });
       expect(result).toBeTruthy();
-    });
-  });
-
-  describe('ディレクトリ構造の作成', () => {
-    it('必要なディレクトリを作成する', () => {
-      const dirs = [
-        path.join(testDir, 'dist'),
-        path.join(testDir, 'translations/ja'),
-        path.join(testDir, 'translations/en'),
-        path.join(testDir, 'completions/bash'),
-        path.join(testDir, 'completions/zsh'),
-        path.join(testDir, 'completions/helpers'),
-        path.join(testDir, 'logs'),
-      ];
-
-      dirs.forEach((dir) => {
-        fs.mkdirSync(dir, { recursive: true });
-        expect(fs.existsSync(dir)).toBe(true);
-      });
-    });
-  });
-
-  describe('設定ファイルの生成', () => {
-    it('デフォルト設定ファイルを生成する', () => {
-      const configPath = path.join(testDir, 'config.json');
-      const defaultConfig = {
-        locale: 'ja',
-        logLevel: 'INFO',
-        cacheTtl: 3600000,
-        enableCompletion: true,
-        completionHistorySize: 1000,
-      };
-
-      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
-
-      expect(fs.existsSync(configPath)).toBe(true);
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      expect(config).toEqual(defaultConfig);
-    });
-
-    it('既存の設定ファイルがある場合は上書きしない', () => {
-      const configPath = path.join(testDir, 'config.json');
-      const existingConfig = {
-        locale: 'en',
-        logLevel: 'DEBUG',
-        cacheTtl: 7200000,
-      };
-
-      fs.writeFileSync(configPath, JSON.stringify(existingConfig, null, 2));
-
-      // インストールスクリプトが実行されても上書きされないことを確認
-      expect(fs.existsSync(configPath)).toBe(true);
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      expect(config.locale).toBe('en');
-      expect(config.logLevel).toBe('DEBUG');
-    });
-  });
-
-  describe('シェル補完スクリプトの設定', () => {
-    it('bashrcファイルに補完スクリプトのソースを追加する', () => {
-      const bashrcPath = path.join(testDir, '.bashrc');
-      const completionSource = `\n# SuperClaude Japanese Extension completion\nif [ -f ~/.claude/extensions/japanese-i18n/completions/bash/claude-complete.bash ]; then\n  source ~/.claude/extensions/japanese-i18n/completions/bash/claude-complete.bash\nfi\n`;
-
-      // 既存の.bashrcがない場合
-      fs.writeFileSync(bashrcPath, completionSource);
-      expect(fs.readFileSync(bashrcPath, 'utf-8')).toContain('SuperClaude Japanese Extension completion');
-    });
-
-    it('zshrcファイルに補完スクリプトのfpathを追加する', () => {
-      const zshrcPath = path.join(testDir, '.zshrc');
-      const completionFpath = `\n# SuperClaude Japanese Extension completion\nfpath=(~/.claude/extensions/japanese-i18n/completions/zsh $fpath)\nautoload -Uz compinit && compinit\n`;
-
-      fs.writeFileSync(zshrcPath, completionFpath);
-      expect(fs.readFileSync(zshrcPath, 'utf-8')).toContain('SuperClaude Japanese Extension completion');
-      expect(fs.readFileSync(zshrcPath, 'utf-8')).toContain('autoload -Uz compinit');
-    });
-
-    it('既にエントリが存在する場合は重複追加しない', () => {
-      const bashrcPath = path.join(testDir, '.bashrc');
-      const completionSource = `\n# SuperClaude Japanese Extension completion\nif [ -f ~/.claude/extensions/japanese-i18n/completions/bash/claude-complete.bash ]; then\n  source ~/.claude/extensions/japanese-i18n/completions/bash/claude-complete.bash\nfi\n`;
-
-      // 1回目の追加
-      fs.writeFileSync(bashrcPath, completionSource);
-      const firstContent = fs.readFileSync(bashrcPath, 'utf-8');
-
-      // 2回目の追加（重複チェック）
-      const content = fs.readFileSync(bashrcPath, 'utf-8');
-      if (!content.includes('SuperClaude Japanese Extension completion')) {
-        fs.appendFileSync(bashrcPath, completionSource);
-      }
-
-      const secondContent = fs.readFileSync(bashrcPath, 'utf-8');
-      expect(secondContent).toBe(firstContent);
-    });
-  });
-
-  describe('インストール確認', () => {
-    it('インストールが成功したことを示すメッセージを表示する', () => {
-      const successMessage = `
-✓ SuperClaude Japanese Extension のインストールが完了しました！
-
-次のステップ:
-1. シェルを再起動するか、以下のコマンドを実行してください:
-   bash: source ~/.bashrc
-   zsh: source ~/.zshrc
-
-2. 言語設定を確認してください（デフォルト: 日本語）:
-   export CLAUDE_LANG=ja
-
-3. 動作確認:
-   claude [TAB]  # 補完候補が表示されます
-
-詳細なドキュメントは README.md をご覧ください。
-`;
-
-      expect(successMessage).toContain('インストールが完了しました');
-      expect(successMessage).toContain('source ~/.bashrc');
-      expect(successMessage).toContain('export CLAUDE_LANG=ja');
-    });
-  });
-
-  describe('エラーハンドリング', () => {
-    it('Node.jsバージョンが要件を満たさない場合にエラーを表示する', () => {
-      // Node.js 18未満の場合のエラーメッセージ
-      const errorMessage = 'エラー: Node.js 18.0.0以上が必要です。現在のバージョン:';
-      expect(errorMessage).toContain('Node.js 18.0.0以上が必要です');
-    });
-
-    it('必要な権限がない場合にエラーを表示する', () => {
-      const errorMessage = 'エラー: ディレクトリの作成権限がありません:';
-      expect(errorMessage).toContain('ディレクトリの作成権限がありません');
     });
   });
 });

@@ -209,7 +209,7 @@ describe('E2E User Workflow Tests', () => {
         () => hintProvider.generateCommandHint('build'),
         () => completionEngine.completeCommand('impl'),
         () => hintProvider.generateFlagHint('think'),
-        () => completionEngine.completeFlag(undefined, '--uc'),
+        () => completionEngine.completeFlag('build', '--uc'),
         () => hintProvider.generateArgumentHint('build', 'target'),
       ];
 

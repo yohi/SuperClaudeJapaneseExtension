@@ -85,7 +85,7 @@ describe('Performance Benchmarks', () => {
 
     it('should generate flag completions within 200ms', () => {
       const start = performance.now();
-      const result = completionEngine.completeFlag(undefined, '--th');
+      const result = completionEngine.completeFlag('build', '--th');
       const duration = performance.now() - start;
 
       expect(result.ok).toBe(true);
@@ -212,7 +212,7 @@ describe('Performance Benchmarks', () => {
       for (let i = 0; i < 1000; i++) {
         hintProvider.generateCommandHint('build');
         completionEngine.completeCommand('bu');
-        completionEngine.completeFlag(undefined, '--th');
+        completionEngine.completeFlag('build', '--th');
       }
 
       const afterMemory = process.memoryUsage().heapUsed;

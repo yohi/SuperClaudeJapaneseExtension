@@ -56,7 +56,7 @@ export CLAUDE_LANG=en  # 英語モード
 #### 1. リポジトリをクローン
 
 ```bash
-git clone https://github.com/yourusername/SuperClaudeJapaneseExtension.git
+git clone https://github.com/yohi/SuperClaudeJapaneseExtension.git
 cd SuperClaudeJapaneseExtension
 ```
 
@@ -357,7 +357,7 @@ rm -rf ~/.claude/extensions/japanese-i18n/cache
 
 ### バグ報告
 
-[GitHub Issues](https://github.com/yourusername/SuperClaudeJapaneseExtension/issues) からバグを報告してください。
+[GitHub Issues](https://github.com/yohi/SuperClaudeJapaneseExtension/issues) からバグを報告してください。
 
 ### プルリクエスト
 
@@ -381,8 +381,8 @@ MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
 
 - **ドキュメント**: [README.md](README.md)
 - **FAQ**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/SuperClaudeJapaneseExtension/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/SuperClaudeJapaneseExtension/discussions)
+- **Issues**: [GitHub Issues](https://github.com/yohi/SuperClaudeJapaneseExtension/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yohi/SuperClaudeJapaneseExtension/discussions)
 
 ---
 

@@ -5,6 +5,10 @@
 
 set -e
 
+# スクリプトディレクトリの取得
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 # カラー定義
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -98,6 +102,16 @@ else
 }
 EOF
     echo -e "${GREEN}✓${NC} デフォルト設定ファイルを作成しました: ${CONFIG_FILE}"
+fi
+
+# 補完スクリプトのコピー
+echo -e "${BLUE}補完スクリプトをコピー中...${NC}"
+
+if [ -d "${REPO_ROOT}/completions" ]; then
+    cp -a "${REPO_ROOT}/completions/." "${INSTALL_DIR}/completions/"
+    echo -e "${GREEN}✓${NC} 補完スクリプトをコピーしました"
+else
+    echo -e "${YELLOW}警告: レポジトリ内に completions/ が見つかりません。補完スクリプトの配置をスキップします。${NC}"
 fi
 
 # 6. シェル補完スクリプトの設定

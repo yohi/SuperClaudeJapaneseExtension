@@ -480,8 +480,8 @@ docs: update translation guide
 質問や問題がある場合は、以下をご利用ください:
 
 - **ドキュメント**: [README.md](README.md)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/SuperClaudeJapaneseExtension/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/SuperClaudeJapaneseExtension/discussions)
+- **Issues**: [GitHub Issues](https://github.com/yohi/SuperClaudeJapaneseExtension/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yohi/SuperClaudeJapaneseExtension/discussions)
 
 ---
 
