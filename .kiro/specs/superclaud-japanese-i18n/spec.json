@@ -63,12 +63,14 @@
       "11",
       "11.1",
       "11.2",
-      "11.3"
+      "11.3",
+      "12",
+      "12.1",
+      "12.2",
+      "12.3"
     ],
     "in_progress_tasks": [],
-    "pending_tasks": [
-      "12"
-    ],
+    "pending_tasks": [],
     "total_tasks": 12,
     "completed_count": 12,
     "completion_percentage": 100
@@ -439,13 +441,19 @@
     "errors_count": 11,
     "total_translations": 77
   },
-  "next_task": {
-    "id": "10",
-    "name": "エラーハンドリングとロギングの強化",
-    "subtasks": [
-      "10.1",
-      "10.2",
-      "10.3"
-    ]
-  }
+  "milestones": {
+    "task_12_completed": {
+      "date": "2025-10-08T16:00:00Z",
+      "description": "最終検証とリリース準備の完了",
+      "deliverables": [
+        "success-criteria.test.ts（E2E成功基準テスト）",
+        "全機能の統合検証完了",
+        "パフォーマンス目標達成確認",
+        "非侵襲的設計の維持確認"
+      ]
+    }
+  },
+  "next_task": null,
+  "project_status": "completed",
+  "completion_date": "2025-10-08T16:00:00Z"
 }
