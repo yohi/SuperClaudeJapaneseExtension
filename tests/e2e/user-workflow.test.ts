@@ -157,7 +157,7 @@ describe('E2E User Workflow Tests', () => {
       const thinkHint = hintProvider.generateFlagHint('think', 'ja');
       expect(thinkHint.ok).toBe(true);
 
-      // System should suggest related flags like --seq
+      // 確認: `--seq`フラグのヒントを確認する
       const seqHint = hintProvider.generateFlagHint('seq', 'ja');
       expect(seqHint.ok).toBe(true);
       if (seqHint.ok) {
