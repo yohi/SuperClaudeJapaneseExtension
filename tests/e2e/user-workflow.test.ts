@@ -174,7 +174,7 @@ describe('E2E User Workflow Tests', () => {
       expect(completions.ok).toBe(true);
       if (completions.ok) {
         // Should return file/directory completions
-        expect(completions.value.length).toBeGreaterThanOrEqual(0);
+        expect(completions.value.length).toBeGreaterThan(0);
       }
     });
   });
@@ -214,8 +214,12 @@ describe('E2E User Workflow Tests', () => {
       for (let i = 0; i < 4; i++) {
         operations.forEach((op) => {
           const start = Date.now();
-          op();
-          timings.push(Date.now() - start);
+          const result = op();
+          const elapsed = Date.now() - start;
+
+          // Verify operation succeeded before recording timing
+          expect(result.ok).toBe(true);
+          timings.push(elapsed);
         });
       }
 
@@ -234,7 +238,14 @@ describe('E2E User Workflow Tests', () => {
         return () => hintProvider.generateCommandHint(cmd, 'ja');
       });
 
-      const promises = operations.map((op) => Promise.resolve(op()));
+      const promises = operations.map(
+        (op) =>
+          new Promise((resolve) => {
+            setImmediate(() => {
+              resolve(op());
+            });
+          }),
+      );
       const results = await Promise.all(promises);
 
       results.forEach((result) => {
