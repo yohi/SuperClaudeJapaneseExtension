@@ -5,6 +5,7 @@ SuperClaude Japanese Extension の使用時によくある問題と解決方法�
 ## 目次
 
 - [インストール関連](#インストール関連)
+- [翻訳適用の問題](#翻訳適用の問題)
 - [補完機能の問題](#補完機能の問題)
 - [表示・文字化け](#表示文字化け)
 - [パフォーマンス](#パフォーマンス)
@@ -48,6 +49,111 @@ npm cache clean --force
 
 # 再度インストールを試行
 ./scripts/install.sh
+```
+
+## 翻訳適用の問題
+
+### `npm run apply` が失敗する
+
+**症状**: `npm run apply` を実行してもエラーが発生する
+
+**原因**: TypeScript コンパイルエラー、または翻訳ファイルのJSON構文エラー
+
+**解決策**:
+```bash
+# TypeScript をビルド
+npm run build
+
+# ビルドエラーがある場合は詳細を確認
+# エラーメッセージに従って修正
+
+# 翻訳ファイルのJSON構文をチェック
+jq . translations/ja/commands.json
+jq . translations/ja/flags.json
+
+# 構文エラーがある場合は修正後、再度実行
+npm run apply
+```
+
+### オプション説明が追加されない
+
+**症状**: `npm run apply` を実行してもコマンドファイルにオプション説明が追加されない
+
+**原因**: `translations/ja/commands.json` の `options` フィールドが正しく設定されていない
+
+**解決策**:
+```bash
+# commands.json の該当コマンドを確認
+cat translations/ja/commands.json | jq '.commands.build'
+
+# options フィールドが存在し、正しい形式か確認
+# 正しい形式の例:
+# "options": {
+#   "--type <value>": "ビルドタイプを指定（dev/prod/test）",
+#   "--clean": "ビルド前にクリーンアップを実行"
+# }
+
+# 修正後、再度適用
+npm run apply
+```
+
+### 共通オプション説明が表示されない
+
+**症状**: コマンドファイルに「共通オプション」セクションが追加されない
+
+**原因**: `translations/ja/flags.json` が読み込めていない、または構文エラー
+
+**解決策**:
+```bash
+# flags.json の存在と構文を確認
+ls -la translations/ja/flags.json
+jq . translations/ja/flags.json
+
+# ファイルが存在しない場合は再インストール
+git checkout translations/ja/flags.json
+
+# 再度適用
+npm run apply
+```
+
+### オプション説明が重複して表示される
+
+**症状**: コマンドファイルに同じオプション説明が複数回表示される
+
+**原因**: `npm run apply` を複数回実行した際の削除処理が不完全
+
+**解決策**:
+```bash
+# 該当コマンドファイルを確認
+cat ~/.claude/commands/sc/build.md
+
+# 重複している場合は手動で削除するか、
+# コマンドファイルを元に戻してから再適用
+# （元のコマンドファイルがある場合）
+
+# または、スクリプトを修正してから再実行
+npm run apply
+```
+
+### 翻訳が適用されているか確認したい
+
+**症状**: 翻訳が正しく適用されたか分からない
+
+**原因**: 確認方法が不明
+
+**解決策**:
+```bash
+# コマンドファイルの description を確認
+head -15 ~/.claude/commands/sc/build.md
+
+# オプションセクションを確認
+grep -A 20 "## オプション" ~/.claude/commands/sc/build.md
+
+# 共通オプションセクションを確認
+grep -A 50 "## 共通オプション" ~/.claude/commands/sc/build.md
+
+# Claude Code を起動してコマンド一覧を確認
+# 日本語で表示されていれば成功
 ```
 
 ## 補完機能の問題
@@ -348,4 +454,4 @@ tail -20 ~/.claude/extensions/japanese-i18n/logs/debug.log
 
 ---
 
-**最終更新**: 2025-10-08
+**最終更新**: 2025-10-08 (v1.1.0)
