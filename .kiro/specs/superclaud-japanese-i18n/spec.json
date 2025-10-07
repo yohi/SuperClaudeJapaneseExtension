@@ -46,19 +46,22 @@
       "6.3",
       "7",
       "7.1",
-      "7.2"
+      "7.2",
+      "8",
+      "8.1",
+      "8.2",
+      "8.3"
     ],
     "in_progress_tasks": [],
     "pending_tasks": [
-      "8",
       "9",
       "10",
       "11",
       "12"
     ],
     "total_tasks": 12,
-    "completed_count": 7,
-    "completion_percentage": 58
+    "completed_count": 8,
+    "completion_percentage": 67
   },
   "test_results": {
     "total_suites": 14,
@@ -236,6 +239,19 @@
         "翻訳データ拡張（flag_suggestions、flag_examples、conflicts）",
         "23テストケース（全テストパス）"
       ]
+    },
+    "task_8_completed": {
+      "date": "2025-10-07T00:00:00Z",
+      "description": "翻訳データの作成完了",
+      "deliverables": [
+        "主要コマンド16個の日本語・英語翻訳（build, implement, analyze, troubleshoot, explain, improve, cleanup, document, estimate, task, test, git, design, index, load, spawn）",
+        "主要フラグ40個以上の日本語・英語翻訳（plan, think系, uc, validation系, MCP制御系, 委譲系, Wave系, スコープ系, ループ系, 全ペルソナ系, introspect）",
+        "エラーメッセージ11種類の日本語・英語翻訳",
+        "コマンドカテゴリーの日本語化（開発・デプロイ、分析・調査、品質・強化、ドキュメント、プランニング、テスト、バージョン管理、メタ）",
+        "フラグエイリアス対応（uc/ultracompressed, c7/context7, seq/sequential, play/playwright, introspect/introspection）",
+        "使用例の完全な日本語化（各コマンド・フラグに具体例を提供）",
+        "合計352行の翻訳データ（commands.json, flags.json, arguments.json, errors.json × 2言語）"
+      ]
     }
   },
   "components_implemented": [
@@ -327,19 +343,20 @@
       "ja",
       "en"
     ],
-    "commands_count": 4,
-    "flags_count": 5,
+    "commands_count": 16,
+    "flags_count": 42,
     "arguments_count": 8,
     "errors_count": 11,
-    "total_translations": 28
+    "total_translations": 77
   },
   "next_task": {
-    "id": "8",
-    "name": "翻訳データの作成",
+    "id": "9",
+    "name": "統合とテスト",
     "subtasks": [
-      "8.1",
-      "8.2",
-      "8.3"
+      "9.1",
+      "9.2",
+      "9.3",
+      "9.4"
     ]
   }
 }

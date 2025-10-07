@@ -154,27 +154,30 @@
   - パフォーマンス最適化（リアルタイム応答）
   - _Requirements: FR-2.2.1_
 
-- [ ] 8. 翻訳データの作成
-- [ ] 8.1 主要コマンドの翻訳データ作成
+- [x] 8. 翻訳データの作成
+- [x] 8.1 主要コマンドの翻訳データ作成
   - `/build`、`/implement`、`/analyze` などの主要コマンド翻訳
   - コマンド説明、カテゴリーの日本語化
   - 引数ヒントの日本語化
   - 翻訳品質レビュー
   - _Requirements: FR-1.1.1, FR-1.1.3_
+  - **完了**: 16コマンドの日本語・英語翻訳を追加（build, implement, analyze, troubleshoot, explain, improve, cleanup, document, estimate, task, test, git, design, index, load, spawn）
 
-- [ ] 8.2 主要フラグの翻訳データ作成
+- [x] 8.2 主要フラグの翻訳データ作成
   - `--think`、`--uc`、`--persona-*` などの主要フラグ翻訳
   - フラグ説明、エイリアス、使用例の日本語化
   - フラグカテゴリーの整理
   - 翻訳品質レビュー
   - _Requirements: FR-1.1.2_
+  - **完了**: 40個以上のフラグの日本語・英語翻訳を追加（plan, think, think-hard, ultrathink, uc, ultracompressed, validate, safe-mode, verbose, c7, seq, magic, play, all-mcp, no-mcp, delegate, concurrency, wave-mode, wave-strategy, scope, focus, loop, iterations, interactive, 全ペルソナフラグ, introspect）
 
-- [ ] 8.3 エラーメッセージの翻訳データ作成
+- [x] 8.3 エラーメッセージの翻訳データ作成
   - よくあるエラーメッセージの日本語化
   - エラーコードとメッセージのマッピング
   - 修正提案メッセージの日本語化
   - 翻訳品質レビュー
   - _Requirements: FR-1.1.4_
+  - **完了**: 11種類のエラータイプの日本語・英語翻訳を確認（COMMAND_NOT_FOUND, FLAG_NOT_FOUND, ARGUMENT_NOT_FOUND, TRANSLATION_NOT_FOUND, TRANSLATION_UNAVAILABLE, FILE_NOT_FOUND, PARSE_ERROR, INIT_FAILED, RESOURCE_NOT_FOUND, INVALID_COMMAND, NO_CANDIDATES_FOUND）
 
 - [ ] 9. 統合とテスト
 - [ ] 9.1 ユニットテストの実装

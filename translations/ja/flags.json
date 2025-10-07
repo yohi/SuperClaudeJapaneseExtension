@@ -5,22 +5,179 @@
       "description": "実行前に詳細な計画を表示",
       "example": "claude /build --plan"
     },
+    "think": {
+      "description": "多ファイル分析（約4Kトークン）",
+      "example": "claude /analyze --think"
+    },
+    "think-hard": {
+      "description": "深層アーキテクチャ分析（約10Kトークン）",
+      "example": "claude /improve --think-hard"
+    },
+    "ultrathink": {
+      "description": "最大深度分析（約32Kトークン）",
+      "example": "claude /analyze --ultrathink"
+    },
     "uc": {
       "description": "トークン使用を30-50%削減（ultracompressed）",
       "alias": "ultracompressed",
       "example": "claude /implement --uc feature-name"
     },
-    "think": {
-      "description": "思考プロセスを表示",
-      "example": "claude /analyze --think"
+    "ultracompressed": {
+      "description": "トークン使用を30-50%削減",
+      "alias": "uc",
+      "example": "claude /implement --ultracompressed"
+    },
+    "answer-only": {
+      "description": "タスク作成やワークフロー自動化なしの直接応答",
+      "example": "claude /explain --answer-only"
+    },
+    "validate": {
+      "description": "操作前の検証とリスク評価",
+      "example": "claude /build --validate"
+    },
+    "safe-mode": {
+      "description": "保守的な実行で最大限の検証を実施",
+      "example": "claude /implement --safe-mode"
+    },
+    "verbose": {
+      "description": "最大限の詳細と説明を表示",
+      "example": "claude /analyze --verbose"
+    },
+    "c7": {
+      "description": "Context7を有効化してライブラリドキュメントを参照",
+      "alias": "context7",
+      "example": "claude /implement --c7"
+    },
+    "context7": {
+      "description": "Context7を有効化してライブラリドキュメントを参照",
+      "alias": "c7",
+      "example": "claude /implement --context7"
+    },
+    "seq": {
+      "description": "Sequentialを有効化して複雑な多段階分析を実行",
+      "alias": "sequential",
+      "example": "claude /troubleshoot --seq"
+    },
+    "sequential": {
+      "description": "Sequentialを有効化して複雑な多段階分析を実行",
+      "alias": "seq",
+      "example": "claude /troubleshoot --sequential"
+    },
+    "magic": {
+      "description": "MagicでUIコンポーネントを生成",
+      "example": "claude /design --magic"
+    },
+    "play": {
+      "description": "Playwrightでクロスブラウザ自動化とE2Eテストを実行",
+      "alias": "playwright",
+      "example": "claude /test --play"
+    },
+    "playwright": {
+      "description": "Playwrightでクロスブラウザ自動化とE2Eテストを実行",
+      "alias": "play",
+      "example": "claude /test --playwright"
+    },
+    "all-mcp": {
+      "description": "全MCPサーバーを同時に有効化",
+      "example": "claude /analyze --all-mcp"
+    },
+    "no-mcp": {
+      "description": "全MCPサーバーを無効化し、ネイティブツールのみ使用",
+      "example": "claude /build --no-mcp"
+    },
+    "delegate": {
+      "description": "サブエージェント委譲を有効化（files/folders/auto）",
+      "example": "claude /analyze --delegate auto"
+    },
+    "concurrency": {
+      "description": "最大同時サブエージェント数を制御（デフォルト: 7, 範囲: 1-15）",
+      "example": "claude /analyze --concurrency 10"
+    },
+    "wave-mode": {
+      "description": "Waveオーケストレーション活性化制御（auto/force/off）",
+      "example": "claude /improve --wave-mode force"
+    },
+    "wave-strategy": {
+      "description": "Waveオーケストレーション戦略選択（progressive/systematic/adaptive/enterprise）",
+      "example": "claude /improve --wave-strategy systematic"
+    },
+    "wave-delegation": {
+      "description": "Wave systemの作業委譲方法制御（files/folders/tasks）",
+      "example": "claude /analyze --wave-delegation tasks"
+    },
+    "scope": {
+      "description": "分析スコープレベル指定（file/module/project/system）",
+      "example": "claude /analyze --scope project"
+    },
+    "focus": {
+      "description": "焦点領域指定（performance/security/quality/architecture/accessibility/testing）",
+      "example": "claude /analyze --focus security"
+    },
+    "loop": {
+      "description": "反復改善モードを有効化",
+      "example": "claude /improve --loop"
+    },
+    "iterations": {
+      "description": "改善サイクル数を制御（デフォルト: 3, 範囲: 1-10）",
+      "example": "claude /improve --iterations 5"
+    },
+    "interactive": {
+      "description": "反復間のユーザー確認を有効化",
+      "example": "claude /improve --interactive"
     },
     "persona-architect": {
-      "description": "アーキテクトペルソナとして動作",
-      "example": "claude /build --persona-architect"
+      "description": "システムアーキテクチャスペシャリストとして動作",
+      "example": "claude /design --persona-architect"
     },
-    "persona-developer": {
-      "description": "開発者ペルソナとして動作",
-      "example": "claude /implement --persona-developer"
+    "persona-frontend": {
+      "description": "UXスペシャリスト・アクセシビリティ支援者として動作",
+      "example": "claude /build --persona-frontend"
+    },
+    "persona-backend": {
+      "description": "信頼性エンジニア・APIスペシャリストとして動作",
+      "example": "claude /implement --persona-backend"
+    },
+    "persona-analyzer": {
+      "description": "根本原因スペシャリストとして動作",
+      "example": "claude /troubleshoot --persona-analyzer"
+    },
+    "persona-security": {
+      "description": "脅威モデリング・脆弱性スペシャリストとして動作",
+      "example": "claude /analyze --persona-security"
+    },
+    "persona-mentor": {
+      "description": "知識移転スペシャリストとして動作",
+      "example": "claude /explain --persona-mentor"
+    },
+    "persona-refactorer": {
+      "description": "コード品質スペシャリストとして動作",
+      "example": "claude /cleanup --persona-refactorer"
+    },
+    "persona-performance": {
+      "description": "最適化スペシャリストとして動作",
+      "example": "claude /improve --persona-performance"
+    },
+    "persona-qa": {
+      "description": "品質保証支援者・テストスペシャリストとして動作",
+      "example": "claude /test --persona-qa"
+    },
+    "persona-devops": {
+      "description": "インフラストラクチャスペシャリストとして動作",
+      "example": "claude /git --persona-devops"
+    },
+    "persona-scribe": {
+      "description": "プロフェッショナルライター・ドキュメントスペシャリストとして動作",
+      "example": "claude /document --persona-scribe=ja"
+    },
+    "introspect": {
+      "description": "思考プロセスを露出する透明性モード",
+      "alias": "introspection",
+      "example": "claude /analyze --introspect"
+    },
+    "introspection": {
+      "description": "思考プロセスを露出する透明性モード",
+      "alias": "introspect",
+      "example": "claude /analyze --introspection"
     }
   },
   "flag_suggestions": {
