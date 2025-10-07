@@ -225,15 +225,22 @@ describe('ErrorHandler', () => {
     });
 
     it('NO_CANDIDATES_FOUNDエラーを処理して情報を返す', () => {
+      mockI18nManager.translate.mockReturnValue({
+        ok: true,
+        value: '候補が見つかりません',
+      });
+
       const result = errorHandler.handleBusinessLogicError({
         type: 'NO_CANDIDATES_FOUND',
       });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.message).toContain('候補が見つかりません');
+        expect(result.value.message).toBe('候補が見つかりません');
         expect(result.value.logLevel).toBe('INFO');
       }
+
+      expect(mockI18nManager.translate).toHaveBeenCalledWith('errors.NO_CANDIDATES_FOUND');
     });
   });
 

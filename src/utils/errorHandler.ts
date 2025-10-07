@@ -247,7 +247,12 @@ export class ErrorHandler {
       }
 
       case 'NO_CANDIDATES_FOUND': {
-        message = '候補が見つかりません';
+        const translationResult = this.i18nManager.translate(
+          'errors.NO_CANDIDATES_FOUND'
+        );
+        message = translationResult.ok
+          ? translationResult.value
+          : 'No candidates found';
         logLevel = 'INFO';
         break;
       }
