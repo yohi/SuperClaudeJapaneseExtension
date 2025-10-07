@@ -61,3 +61,27 @@ export interface PerformanceMetrics {
   cacheHitRate: number;
   errorRate: number;
 }
+
+// メトリクスデータ
+export interface MetricsData {
+  translationTime: {
+    count: number;
+    samples: number[];
+  };
+  cacheHits: number;
+  cacheMisses: number;
+  errors: Record<string, number>;
+}
+
+// パーセンタイル統計
+export interface PercentileStats {
+  p50: number;
+  p95: number;
+  p99: number;
+}
+
+// メトリクスエクスポートエラー
+export type MetricsExportError = {
+  type: 'EXPORT_ERROR';
+  message: string;
+};

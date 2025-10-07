@@ -46,6 +46,11 @@ export { CompletionEngine } from './completion/completionEngine';
 // キャッシュコンポーネント
 export { CacheManager } from './cache/cacheManager';
 
+// ユーティリティコンポーネント
+export { ErrorHandler } from './utils/errorHandler';
+export { Logger } from './utils/logger';
+export { MetricsCollector } from './utils/metricsCollector';
+
 /**
  * バージョン情報
  */

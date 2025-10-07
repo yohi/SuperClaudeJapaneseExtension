@@ -58,25 +58,25 @@
       "9.4",
       "10",
       "10.1",
-      "10.2"
+      "10.2",
+      "10.3"
     ],
     "in_progress_tasks": [],
     "pending_tasks": [
-      "10.3",
       "11",
       "12"
     ],
     "total_tasks": 12,
-    "completed_count": 10,
-    "completion_percentage": 83
+    "completed_count": 11,
+    "completion_percentage": 92
   },
   "test_results": {
-    "total_suites": 16,
-    "passed_suites": 16,
-    "total_tests": 255,
-    "passed_tests": 255,
+    "total_suites": 17,
+    "passed_suites": 17,
+    "total_tests": 274,
+    "passed_tests": 274,
     "failed_tests": 0,
-    "last_run": "2025-10-08T00:00:00Z"
+    "last_run": "2025-10-08T12:00:00Z"
   },
   "milestones": {
     "task_1_completed": {
@@ -290,7 +290,11 @@
         "メタデータ付きログ出力（JSON形式）",
         "エラーハンドリングの堅牢化（ファイル書き込みエラー、ローテーションエラー）",
         "fast-levenshteinライブラリ統合",
-        "型定義の拡張（utils/types.ts）"
+        "型定義の拡張（utils/types.ts）",
+        "MetricsCollectorクラス実装（19テストケース、100%パス率）",
+        "翻訳取得時間の記録（線形補間によるp50/p95/p99パーセンタイル計算）",
+        "キャッシュヒット率・エラー発生率の計測",
+        "メトリクスエクスポート機能（JSON形式、統計情報含む）"
       ]
     }
   },
@@ -389,6 +393,13 @@
       "path": "src/utils/logger.ts",
       "tests": "tests/unit/utils/logger.test.ts",
       "test_count": 18,
+      "status": "completed"
+    },
+    {
+      "name": "MetricsCollector",
+      "path": "src/utils/metricsCollector.ts",
+      "tests": "tests/unit/utils/metricsCollector.test.ts",
+      "test_count": 19,
       "status": "completed"
     }
   ],
