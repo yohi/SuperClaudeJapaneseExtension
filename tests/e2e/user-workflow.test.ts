@@ -133,18 +133,19 @@ describe('E2E User Workflow Tests', () => {
   });
 
   describe('Multi-Command Session', () => {
-    it('should maintain performance across multiple commands', () => {
+    it('should maintain performance across multiple commands', async () => {
       const commands = ['build', 'implement', 'analyze', 'troubleshoot', 'explain'];
       const timings: number[] = [];
 
-      commands.forEach((cmd) => {
+      for (const cmd of commands) {
         const start = Date.now();
-        const result = hintProvider.generateCommandHint(cmd, 'ja');
-        const duration = Date.now() - start;
+        const result = await hintProvider.generateCommandHint(cmd, 'ja');
 
+        // 操作が成功した場合のみタイミングを記録
         expect(result.ok).toBe(true);
+        const duration = Date.now() - start;
         timings.push(duration);
-      });
+      }
 
       const avgTiming = timings.reduce((a, b) => a + b, 0) / timings.length;
       expect(avgTiming).toBeLessThan(100);
@@ -198,7 +199,7 @@ describe('E2E User Workflow Tests', () => {
   });
 
   describe('Performance Under Real Usage', () => {
-    it('should maintain sub-100ms response time for typical usage', () => {
+    it('should maintain sub-100ms response time for typical usage', async () => {
       // Simulate realistic user session: 20 operations
       const operations = [
         () => hintProvider.generateCommandHint('build', 'ja'),
@@ -212,15 +213,15 @@ describe('E2E User Workflow Tests', () => {
 
       // Repeat operations 4 times (total 20)
       for (let i = 0; i < 4; i++) {
-        operations.forEach((op) => {
+        for (const op of operations) {
           const start = Date.now();
-          const result = op();
-          const elapsed = Date.now() - start;
+          const result = await op();
 
-          // Verify operation succeeded before recording timing
+          // 操作が成功した場合のみタイミングを記録
           expect(result.ok).toBe(true);
+          const elapsed = Date.now() - start;
           timings.push(elapsed);
-        });
+        }
       }
 
       const avgTiming = timings.reduce((a, b) => a + b, 0) / timings.length;
