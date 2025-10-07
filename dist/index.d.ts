@@ -11,6 +11,9 @@ export { CommandMetadataLoader } from './metadata/commandMetadataLoader';
 export { HintProvider } from './hint/hintProvider';
 export { CompletionEngine } from './completion/completionEngine';
 export { CacheManager } from './cache/cacheManager';
+export { ErrorHandler } from './utils/errorHandler';
+export { Logger } from './utils/logger';
+export { MetricsCollector } from './utils/metricsCollector';
 /**
  * バージョン情報
  */

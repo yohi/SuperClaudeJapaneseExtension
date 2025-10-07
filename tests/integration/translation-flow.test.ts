@@ -73,7 +73,7 @@ describe('Translation Flow Integration Tests', () => {
     });
 
     it('should provide completions for --th prefix', () => {
-      const result = completionEngine.completeFlag(undefined, '--th');
+      const result = completionEngine.completeFlag('build', '--th');
 
       expect(result.ok).toBe(true);
       if (result.ok) {

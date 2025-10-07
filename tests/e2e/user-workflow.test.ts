@@ -5,6 +5,7 @@ import { I18nManager } from '../../src/i18n/i18nManager';
 import { HintProvider } from '../../src/hint/hintProvider';
 import { CompletionEngine } from '../../src/completion/completionEngine';
 import { CommandMetadataLoader } from '../../src/metadata/commandMetadataLoader';
+import { Result, HintError } from '../../src/types';
 
 describe('E2E User Workflow Tests', () => {
   let i18nManager: I18nManager;
@@ -31,7 +32,7 @@ describe('E2E User Workflow Tests', () => {
   describe('First-Time User Experience', () => {
     it('should provide Japanese hints on first command', () => {
       // Simulate new user's first command: /build
-      const result = hintProvider.generateCommandHint('build', 'ja');
+      const result = hintProvider.generateCommandHint('build');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -49,7 +50,7 @@ describe('E2E User Workflow Tests', () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value.length).toBeGreaterThan(0);
-        expect(result.value[0].value).toBe('build');
+        expect(result.value[0].name).toBe('build');
         expect(result.value[0].description).toContain('日本語');
       }
     });
@@ -58,25 +59,25 @@ describe('E2E User Workflow Tests', () => {
   describe('Typical Workflow: Build Command', () => {
     it('should assist user through build command workflow', () => {
       // Step 1: User types /build
-      const cmdHint = hintProvider.generateCommandHint('build', 'ja');
+      const cmdHint = hintProvider.generateCommandHint('build');
       expect(cmdHint.ok).toBe(true);
 
       // Step 2: User considers flags - types --
-      const flagCompletions = completionEngine.completeFlag('--', 'ja');
+      const flagCompletions = completionEngine.completeFlag('build', '--');
       expect(flagCompletions.ok).toBe(true);
       if (flagCompletions.ok) {
         expect(flagCompletions.value.length).toBeGreaterThan(0);
       }
 
       // Step 3: User selects --plan flag
-      const planHint = hintProvider.generateFlagHint('plan', 'ja');
+      const planHint = hintProvider.generateFlagHint('plan');
       expect(planHint.ok).toBe(true);
       if (planHint.ok) {
         expect(planHint.value).toContain('実行前に計画を表示');
       }
 
       // Step 4: User provides argument - types prod
-      const argCompletions = completionEngine.completeArgument('build', 'target', 'prod', 'ja');
+      const argCompletions = completionEngine.completeArgument('build', 0, 'prod');
       expect(argCompletions.ok).toBe(true);
       if (argCompletions.ok) {
         expect(argCompletions.value.some((item) => item.value === 'production')).toBe(true);
@@ -91,16 +92,12 @@ describe('E2E User Workflow Tests', () => {
         {
           type: 'COMMAND_NOT_FOUND',
           command: 'buidl',
-          suggestions: ['build'],
         },
-        'ja'
+        ['build']
       );
 
-      expect(error.ok).toBe(true);
-      if (error.ok) {
-        expect(error.value).toContain('コマンドが見つかりません');
-        expect(error.value).toContain('build'); // Should suggest correct command
-      }
+      expect(error).toContain('コマンド');
+      expect(error).toContain('build'); // Should suggest correct command
     });
 
     it('should help with flag typos', () => {
@@ -109,30 +106,28 @@ describe('E2E User Workflow Tests', () => {
         {
           type: 'FLAG_NOT_FOUND',
           flag: '--plann',
-          suggestions: ['--plan'],
         },
-        'ja'
+        ['--plan']
       );
 
-      expect(error.ok).toBe(true);
-      if (error.ok) {
-        expect(error.value).toContain('フラグが見つかりません');
-        expect(error.value).toContain('--plan');
-      }
+      expect(error).toContain('フラグ');
+      expect(error).toContain('--plan');
     });
   });
 
   describe('Language Switching Workflow', () => {
     it('should allow user to switch from Japanese to English', () => {
       // User starts with Japanese
-      const jaResult = hintProvider.generateCommandHint('build', 'ja');
+      i18nManager.changeLanguage('ja');
+      const jaResult = hintProvider.generateCommandHint('build');
       expect(jaResult.ok).toBe(true);
       if (jaResult.ok) {
         expect(jaResult.value).toContain('フレームワーク');
       }
 
       // User switches to English (via environment variable)
-      const enResult = hintProvider.generateCommandHint('build', 'en');
+      i18nManager.changeLanguage('en');
+      const enResult = hintProvider.generateCommandHint('build');
       expect(enResult.ok).toBe(true);
       if (enResult.ok) {
         expect(enResult.value).toContain('framework');
@@ -148,7 +143,7 @@ describe('E2E User Workflow Tests', () => {
 
       for (const cmd of commands) {
         const start = Date.now();
-        const result = await hintProvider.generateCommandHint(cmd, 'ja');
+        const result = await hintProvider.generateCommandHint(cmd);
 
         // 操作が成功した場合のみタイミングを記録
         expect(result.ok).toBe(true);
@@ -164,11 +159,11 @@ describe('E2E User Workflow Tests', () => {
   describe('Flag Combination Workflow', () => {
     it('should suggest related flags when user enters --think', () => {
       // User enters --think
-      const thinkHint = hintProvider.generateFlagHint('think', 'ja');
+      const thinkHint = hintProvider.generateFlagHint('think');
       expect(thinkHint.ok).toBe(true);
 
       // 確認: `--seq`フラグのヒントを確認する
-      const seqHint = hintProvider.generateFlagHint('seq', 'ja');
+      const seqHint = hintProvider.generateFlagHint('seq');
       expect(seqHint.ok).toBe(true);
       if (seqHint.ok) {
         expect(seqHint.value).toContain('Sequential');
@@ -179,7 +174,7 @@ describe('E2E User Workflow Tests', () => {
   describe('Argument Path Completion', () => {
     it('should complete file paths for @<path> notation', () => {
       // User types @src/
-      const completions = completionEngine.completeArgument('build', 'path', '@src/', 'ja');
+      const completions = completionEngine.completeArgument('build', 0, '@src/');
 
       expect(completions.ok).toBe(true);
       if (completions.ok) {
@@ -195,7 +190,7 @@ describe('E2E User Workflow Tests', () => {
       const commands = ['build', 'implement', 'analyze'];
 
       commands.forEach((cmd) => {
-        const result = hintProvider.generateCommandHint(cmd, 'ja');
+        const result = hintProvider.generateCommandHint(cmd);
         expect(result.ok).toBe(true);
       });
 
@@ -211,11 +206,11 @@ describe('E2E User Workflow Tests', () => {
     it('should maintain sub-100ms response time for typical usage', async () => {
       // Simulate realistic user session: 20 operations
       const operations = [
-        () => hintProvider.generateCommandHint('build', 'ja'),
+        () => hintProvider.generateCommandHint('build'),
         () => completionEngine.completeCommand('impl'),
-        () => hintProvider.generateFlagHint('think', 'ja'),
-        () => completionEngine.completeFlag('--uc', 'ja'),
-        () => hintProvider.generateArgumentHint('build', 'target', 'ja'),
+        () => hintProvider.generateFlagHint('think'),
+        () => completionEngine.completeFlag('build', '--uc'),
+        () => hintProvider.generateArgumentHint('build', 'target'),
       ];
 
       const timings: number[] = [];
@@ -245,12 +240,12 @@ describe('E2E User Workflow Tests', () => {
     it('should handle multiple simultaneous operations', async () => {
       const operations = Array.from({ length: 50 }, (_, i) => {
         const cmd = ['build', 'implement', 'analyze'][i % 3];
-        return () => hintProvider.generateCommandHint(cmd, 'ja');
+        return () => hintProvider.generateCommandHint(cmd);
       });
 
       const promises = operations.map(
         (op) =>
-          new Promise((resolve) => {
+          new Promise<Result<string, HintError>>((resolve) => {
             setImmediate(() => {
               resolve(op());
             });

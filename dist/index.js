@@ -4,7 +4,7 @@
  * エントリーポイント
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_CONFIG = exports.VERSION = exports.CacheManager = exports.CompletionEngine = exports.HintProvider = exports.CommandMetadataLoader = exports.MetadataParser = exports.TranslationLoader = exports.I18nManager = exports.LogLevel = void 0;
+exports.DEFAULT_CONFIG = exports.VERSION = exports.MetricsCollector = exports.Logger = exports.ErrorHandler = exports.CacheManager = exports.CompletionEngine = exports.HintProvider = exports.CommandMetadataLoader = exports.MetadataParser = exports.TranslationLoader = exports.I18nManager = exports.LogLevel = void 0;
 var types_1 = require("./types");
 Object.defineProperty(exports, "LogLevel", { enumerable: true, get: function () { return types_1.LogLevel; } });
 // i18nコンポーネント
@@ -26,6 +26,13 @@ Object.defineProperty(exports, "CompletionEngine", { enumerable: true, get: func
 // キャッシュコンポーネント
 var cacheManager_1 = require("./cache/cacheManager");
 Object.defineProperty(exports, "CacheManager", { enumerable: true, get: function () { return cacheManager_1.CacheManager; } });
+// ユーティリティコンポーネント
+var errorHandler_1 = require("./utils/errorHandler");
+Object.defineProperty(exports, "ErrorHandler", { enumerable: true, get: function () { return errorHandler_1.ErrorHandler; } });
+var logger_1 = require("./utils/logger");
+Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
+var metricsCollector_1 = require("./utils/metricsCollector");
+Object.defineProperty(exports, "MetricsCollector", { enumerable: true, get: function () { return metricsCollector_1.MetricsCollector; } });
 /**
  * バージョン情報
  */
