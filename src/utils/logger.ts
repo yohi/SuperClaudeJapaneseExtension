@@ -132,25 +132,22 @@ export class Logger {
       })
       .sort((a, b) => b - a);
 
-    // 古いファイルを削除
-    if (existingLogs.length >= this.maxFiles) {
-      const filesToDelete = existingLogs.slice(this.maxFiles - 1);
-      filesToDelete.forEach((num) => {
-        const fileToDelete = path.join(logDir, `${logBaseName}.${num}`);
-        if (fs.existsSync(fileToDelete)) {
-          fs.unlinkSync(fileToDelete);
-        }
-      });
+    // 古いファイルを削除（最大保持数を超える高番号を削除）
+    const numbersToDelete = existingLogs.filter((n) => n >= this.maxFiles);
+    for (const num of numbersToDelete) {
+      const fileToDelete = path.join(logDir, `${logBaseName}.${num}`);
+      if (fs.existsSync(fileToDelete)) {
+        fs.unlinkSync(fileToDelete);
+      }
     }
 
-    // 既存のファイルをリネーム（番号をインクリメント）
-    for (let i = existingLogs.length - 1; i >= 0; i--) {
-      const currentNum = existingLogs[i];
+    // 既存のファイルをリネーム（高番号→高番号+1 の順で衝突回避）
+    for (const currentNum of existingLogs) {
+      // existingLogs は降順ソート済みなので、高番号から処理される
       const oldPath = path.join(logDir, `${logBaseName}.${currentNum}`);
-      const newPath = path.join(logDir, `${logBaseName}.${currentNum + 1}`);
-
+      const nextPath = path.join(logDir, `${logBaseName}.${currentNum + 1}`);
       if (fs.existsSync(oldPath)) {
-        fs.renameSync(oldPath, newPath);
+        fs.renameSync(oldPath, nextPath);
       }
     }
 
