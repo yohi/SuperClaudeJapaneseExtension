@@ -207,7 +207,7 @@ describe('HintProvider', () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value).toContain('plan');
-        expect(result.value).toContain('Display detailed plan');
+        expect(result.value).toContain('Display execution plan before operations');
       }
     });
 

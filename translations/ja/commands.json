@@ -3,27 +3,114 @@
   "commands": {
     "build": {
       "description": "フレームワーク検出付きプロジェクトビルダー",
-      "category": "開発",
+      "category": "開発・デプロイ",
       "arguments": {
         "target": "ビルド対象を指定（例: production, development, staging）"
       }
     },
     "implement": {
       "description": "機能実装とコード生成を支援",
-      "category": "開発",
+      "category": "開発・実装",
       "arguments": {
-        "feature": "実装する機能名を指定"
+        "feature-description": "実装する機能の説明を指定"
       }
     },
     "analyze": {
-      "description": "コードベースの分析とインサイト生成",
-      "category": "分析"
+      "description": "多次元コードとシステム分析",
+      "category": "分析・調査",
+      "arguments": {
+        "target": "分析対象を指定（ファイル、ディレクトリ、またはコード領域）"
+      }
+    },
+    "troubleshoot": {
+      "description": "問題調査とルートコーズ分析",
+      "category": "分析・調査",
+      "arguments": {
+        "symptoms": "発生している症状や問題を記述"
+      }
+    },
+    "explain": {
+      "description": "技術概念やコードの詳細な説明",
+      "category": "分析・調査",
+      "arguments": {
+        "topic": "説明が必要なトピックを指定"
+      }
+    },
+    "improve": {
+      "description": "エビデンスベースのコード改善",
+      "category": "品質・強化",
+      "arguments": {
+        "target": "改善対象を指定（ファイル、関数、モジュールなど）"
+      }
+    },
+    "cleanup": {
+      "description": "プロジェクトのクリーンアップと技術的負債の削減",
+      "category": "品質・強化",
+      "arguments": {
+        "target": "クリーンアップ対象を指定"
+      }
+    },
+    "document": {
+      "description": "ドキュメントの生成と更新",
+      "category": "ドキュメント",
+      "arguments": {
+        "target": "ドキュメント化する対象を指定"
+      }
+    },
+    "estimate": {
+      "description": "エビデンスベースの工数見積もり",
+      "category": "プランニング",
+      "arguments": {
+        "target": "見積もり対象のタスクや機能を指定"
+      }
+    },
+    "task": {
+      "description": "長期プロジェクト管理とタスク追跡",
+      "category": "プランニング",
+      "arguments": {
+        "operation": "実行する操作（例: create, update, list, complete）"
+      }
     },
     "test": {
       "description": "テストケースの生成と実行",
       "category": "テスト",
       "arguments": {
-        "scope": "テスト対象の範囲（例: unit, integration, e2e）"
+        "type": "テストタイプを指定（例: unit, integration, e2e）"
+      }
+    },
+    "git": {
+      "description": "Gitワークフローアシスタント",
+      "category": "バージョン管理",
+      "arguments": {
+        "operation": "Git操作を指定（例: commit, push, pull, branch）"
+      }
+    },
+    "design": {
+      "description": "設計オーケストレーションとアーキテクチャ計画",
+      "category": "開発・実装",
+      "arguments": {
+        "domain": "設計ドメインを指定（例: api, database, ui）"
+      }
+    },
+    "index": {
+      "description": "コマンドカタログの閲覧と検索",
+      "category": "メタ",
+      "arguments": {
+        "query": "検索クエリを指定（オプション）"
+      }
+    },
+    "load": {
+      "description": "プロジェクトコンテキストの読み込み",
+      "category": "メタ",
+      "arguments": {
+        "path": "読み込むプロジェクトのパスを指定"
+      }
+    },
+    "spawn": {
+      "description": "タスクオーケストレーションと並列実行",
+      "category": "メタ",
+      "arguments": {
+        "mode": "実行モードを指定（例: parallel, sequential）"
       }
     }
   }

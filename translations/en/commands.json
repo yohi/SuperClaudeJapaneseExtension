@@ -3,27 +3,114 @@
   "commands": {
     "build": {
       "description": "Project builder with framework detection",
-      "category": "Development",
+      "category": "Development & Deployment",
       "arguments": {
         "target": "Specify build target (e.g., production, development, staging)"
       }
     },
     "implement": {
-      "description": "Assist with feature implementation and code generation",
-      "category": "Development",
+      "description": "Feature and code implementation with intelligent persona activation",
+      "category": "Development & Implementation",
       "arguments": {
-        "feature": "Specify feature name to implement"
+        "feature-description": "Specify feature description to implement"
       }
     },
     "analyze": {
-      "description": "Codebase analysis and insight generation",
-      "category": "Analysis"
+      "description": "Multi-dimensional code and system analysis",
+      "category": "Analysis & Investigation",
+      "arguments": {
+        "target": "Specify analysis target (file, directory, or code area)"
+      }
+    },
+    "troubleshoot": {
+      "description": "Problem investigation and root cause analysis",
+      "category": "Analysis & Investigation",
+      "arguments": {
+        "symptoms": "Describe symptoms or issues occurring"
+      }
+    },
+    "explain": {
+      "description": "Educational explanations of technical concepts and code",
+      "category": "Analysis & Investigation",
+      "arguments": {
+        "topic": "Specify topic to explain"
+      }
+    },
+    "improve": {
+      "description": "Evidence-based code enhancement",
+      "category": "Quality & Enhancement",
+      "arguments": {
+        "target": "Specify improvement target (file, function, module, etc.)"
+      }
+    },
+    "cleanup": {
+      "description": "Project cleanup and technical debt reduction",
+      "category": "Quality & Enhancement",
+      "arguments": {
+        "target": "Specify cleanup target"
+      }
+    },
+    "document": {
+      "description": "Documentation generation and updates",
+      "category": "Documentation",
+      "arguments": {
+        "target": "Specify target to document"
+      }
+    },
+    "estimate": {
+      "description": "Evidence-based effort estimation",
+      "category": "Planning",
+      "arguments": {
+        "target": "Specify tasks or features to estimate"
+      }
+    },
+    "task": {
+      "description": "Long-term project management and task tracking",
+      "category": "Planning",
+      "arguments": {
+        "operation": "Specify operation (e.g., create, update, list, complete)"
+      }
     },
     "test": {
-      "description": "Generate and execute test cases",
+      "description": "Test case generation and execution",
       "category": "Testing",
       "arguments": {
-        "scope": "Test scope (e.g., unit, integration, e2e)"
+        "type": "Specify test type (e.g., unit, integration, e2e)"
+      }
+    },
+    "git": {
+      "description": "Git workflow assistant",
+      "category": "Version Control",
+      "arguments": {
+        "operation": "Specify Git operation (e.g., commit, push, pull, branch)"
+      }
+    },
+    "design": {
+      "description": "Design orchestration and architecture planning",
+      "category": "Development & Implementation",
+      "arguments": {
+        "domain": "Specify design domain (e.g., api, database, ui)"
+      }
+    },
+    "index": {
+      "description": "Command catalog browsing and search",
+      "category": "Meta",
+      "arguments": {
+        "query": "Specify search query (optional)"
+      }
+    },
+    "load": {
+      "description": "Project context loading",
+      "category": "Meta",
+      "arguments": {
+        "path": "Specify project path to load"
+      }
+    },
+    "spawn": {
+      "description": "Task orchestration and parallel execution",
+      "category": "Meta",
+      "arguments": {
+        "mode": "Specify execution mode (e.g., parallel, sequential)"
       }
     }
   }

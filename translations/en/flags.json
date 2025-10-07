@@ -2,25 +2,182 @@
   "version": "1.0.0",
   "flags": {
     "plan": {
-      "description": "Display detailed plan before execution",
+      "description": "Display execution plan before operations",
       "example": "claude /build --plan"
     },
+    "think": {
+      "description": "Multi-file analysis (~4K tokens)",
+      "example": "claude /analyze --think"
+    },
+    "think-hard": {
+      "description": "Deep architectural analysis (~10K tokens)",
+      "example": "claude /improve --think-hard"
+    },
+    "ultrathink": {
+      "description": "Critical system redesign analysis (~32K tokens)",
+      "example": "claude /analyze --ultrathink"
+    },
     "uc": {
-      "description": "Reduce token usage by 30-50% (ultracompressed)",
+      "description": "30-50% token reduction using symbols and structured output",
       "alias": "ultracompressed",
       "example": "claude /implement --uc feature-name"
     },
-    "think": {
-      "description": "Display thinking process",
-      "example": "claude /analyze --think"
+    "ultracompressed": {
+      "description": "30-50% token reduction using symbols and structured output",
+      "alias": "uc",
+      "example": "claude /implement --ultracompressed"
+    },
+    "answer-only": {
+      "description": "Direct response without task creation or workflow automation",
+      "example": "claude /explain --answer-only"
+    },
+    "validate": {
+      "description": "Pre-operation validation and risk assessment",
+      "example": "claude /build --validate"
+    },
+    "safe-mode": {
+      "description": "Maximum validation with conservative execution",
+      "example": "claude /implement --safe-mode"
+    },
+    "verbose": {
+      "description": "Maximum detail and explanation",
+      "example": "claude /analyze --verbose"
+    },
+    "c7": {
+      "description": "Enable Context7 for library documentation lookup",
+      "alias": "context7",
+      "example": "claude /implement --c7"
+    },
+    "context7": {
+      "description": "Enable Context7 for library documentation lookup",
+      "alias": "c7",
+      "example": "claude /implement --context7"
+    },
+    "seq": {
+      "description": "Enable Sequential for complex multi-step analysis",
+      "alias": "sequential",
+      "example": "claude /troubleshoot --seq"
+    },
+    "sequential": {
+      "description": "Enable Sequential for complex multi-step analysis",
+      "alias": "seq",
+      "example": "claude /troubleshoot --sequential"
+    },
+    "magic": {
+      "description": "Enable Magic for UI component generation",
+      "example": "claude /design --magic"
+    },
+    "play": {
+      "description": "Enable Playwright for cross-browser automation and E2E testing",
+      "alias": "playwright",
+      "example": "claude /test --play"
+    },
+    "playwright": {
+      "description": "Enable Playwright for cross-browser automation and E2E testing",
+      "alias": "play",
+      "example": "claude /test --playwright"
+    },
+    "all-mcp": {
+      "description": "Enable all MCP servers simultaneously",
+      "example": "claude /analyze --all-mcp"
+    },
+    "no-mcp": {
+      "description": "Disable all MCP servers, use native tools only",
+      "example": "claude /build --no-mcp"
+    },
+    "delegate": {
+      "description": "Enable Task tool sub-agent delegation (files/folders/auto)",
+      "example": "claude /analyze --delegate auto"
+    },
+    "concurrency": {
+      "description": "Control max concurrent sub-agents and tasks (default: 7, range: 1-15)",
+      "example": "claude /analyze --concurrency 10"
+    },
+    "wave-mode": {
+      "description": "Control wave orchestration activation (auto/force/off)",
+      "example": "claude /improve --wave-mode force"
+    },
+    "wave-strategy": {
+      "description": "Select wave orchestration strategy (progressive/systematic/adaptive/enterprise)",
+      "example": "claude /improve --wave-strategy systematic"
+    },
+    "wave-delegation": {
+      "description": "Control how Wave system delegates work (files/folders/tasks)",
+      "example": "claude /analyze --wave-delegation tasks"
+    },
+    "scope": {
+      "description": "Specify analysis scope level (file/module/project/system)",
+      "example": "claude /analyze --scope project"
+    },
+    "focus": {
+      "description": "Specify focus area (performance/security/quality/architecture/accessibility/testing)",
+      "example": "claude /analyze --focus security"
+    },
+    "loop": {
+      "description": "Enable iterative improvement mode",
+      "example": "claude /improve --loop"
+    },
+    "iterations": {
+      "description": "Control number of improvement cycles (default: 3, range: 1-10)",
+      "example": "claude /improve --iterations 5"
+    },
+    "interactive": {
+      "description": "Enable user confirmation between iterations",
+      "example": "claude /improve --interactive"
     },
     "persona-architect": {
-      "description": "Act as architect persona",
-      "example": "claude /build --persona-architect"
+      "description": "Act as systems architecture specialist",
+      "example": "claude /design --persona-architect"
     },
-    "persona-developer": {
-      "description": "Act as developer persona",
-      "example": "claude /implement --persona-developer"
+    "persona-frontend": {
+      "description": "Act as UX specialist and accessibility advocate",
+      "example": "claude /build --persona-frontend"
+    },
+    "persona-backend": {
+      "description": "Act as reliability engineer and API specialist",
+      "example": "claude /implement --persona-backend"
+    },
+    "persona-analyzer": {
+      "description": "Act as root cause specialist",
+      "example": "claude /troubleshoot --persona-analyzer"
+    },
+    "persona-security": {
+      "description": "Act as threat modeler and vulnerability specialist",
+      "example": "claude /analyze --persona-security"
+    },
+    "persona-mentor": {
+      "description": "Act as knowledge transfer specialist",
+      "example": "claude /explain --persona-mentor"
+    },
+    "persona-refactorer": {
+      "description": "Act as code quality specialist",
+      "example": "claude /cleanup --persona-refactorer"
+    },
+    "persona-performance": {
+      "description": "Act as optimization specialist",
+      "example": "claude /improve --persona-performance"
+    },
+    "persona-qa": {
+      "description": "Act as quality advocate and testing specialist",
+      "example": "claude /test --persona-qa"
+    },
+    "persona-devops": {
+      "description": "Act as infrastructure specialist",
+      "example": "claude /git --persona-devops"
+    },
+    "persona-scribe": {
+      "description": "Act as professional writer and documentation specialist",
+      "example": "claude /document --persona-scribe=en"
+    },
+    "introspect": {
+      "description": "Deep transparency mode exposing thinking process",
+      "alias": "introspection",
+      "example": "claude /analyze --introspect"
+    },
+    "introspection": {
+      "description": "Deep transparency mode exposing thinking process",
+      "alias": "introspect",
+      "example": "claude /analyze --introspection"
     }
   }
 }
