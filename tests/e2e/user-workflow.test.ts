@@ -4,19 +4,28 @@ import * as path from 'path';
 import { I18nManager } from '../../src/i18n/i18nManager';
 import { HintProvider } from '../../src/hint/hintProvider';
 import { CompletionEngine } from '../../src/completion/completionEngine';
-import { CacheManager } from '../../src/cache/cacheManager';
+import { CommandMetadataLoader } from '../../src/metadata/commandMetadataLoader';
 
 describe('E2E User Workflow Tests', () => {
   let i18nManager: I18nManager;
   let hintProvider: HintProvider;
   let completionEngine: CompletionEngine;
-  let cacheManager: CacheManager;
+  let metadataLoader: CommandMetadataLoader;
+  const translationsDir = path.join(__dirname, '../..', 'translations');
+  const fixturesDir = path.join(__dirname, '../fixtures/commands');
 
-  beforeAll(() => {
-    cacheManager = new CacheManager();
-    i18nManager = new I18nManager();
-    hintProvider = new HintProvider(i18nManager, cacheManager);
-    completionEngine = new CompletionEngine(i18nManager);
+  beforeAll(async () => {
+    i18nManager = new I18nManager(translationsDir);
+    await i18nManager.initialize('ja');
+
+    metadataLoader = new CommandMetadataLoader({
+      maxCacheSize: 100,
+      cacheTTL: 3600000,
+    });
+    await metadataLoader.loadCommandsFromDirectory(fixturesDir);
+
+    hintProvider = new HintProvider(i18nManager, metadataLoader);
+    completionEngine = new CompletionEngine(metadataLoader, i18nManager);
   });
 
   describe('First-Time User Experience', () => {
@@ -35,7 +44,7 @@ describe('E2E User Workflow Tests', () => {
 
     it('should provide completion suggestions', () => {
       // User types: /bu[TAB]
-      const result = completionEngine.completeCommand('bu', 'ja');
+      const result = completionEngine.completeCommand('bu');
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -192,7 +201,7 @@ describe('E2E User Workflow Tests', () => {
 
       // Completions should also work
       commands.forEach((cmd) => {
-        const result = completionEngine.completeCommand(cmd.substring(0, 3), 'ja');
+        const result = completionEngine.completeCommand(cmd.substring(0, 3));
         expect(result.ok).toBe(true);
       });
     });
@@ -203,7 +212,7 @@ describe('E2E User Workflow Tests', () => {
       // Simulate realistic user session: 20 operations
       const operations = [
         () => hintProvider.generateCommandHint('build', 'ja'),
-        () => completionEngine.completeCommand('impl', 'ja'),
+        () => completionEngine.completeCommand('impl'),
         () => hintProvider.generateFlagHint('think', 'ja'),
         () => completionEngine.completeFlag('--uc', 'ja'),
         () => hintProvider.generateArgumentHint('build', 'target', 'ja'),
@@ -257,7 +266,7 @@ describe('E2E User Workflow Tests', () => {
 
   describe('Edge Cases', () => {
     it('should handle empty input gracefully', () => {
-      const result = completionEngine.completeCommand('', 'ja');
+      const result = completionEngine.completeCommand('');
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value.length).toBeGreaterThan(0);
@@ -266,14 +275,14 @@ describe('E2E User Workflow Tests', () => {
 
     it('should handle very long prefixes', () => {
       const longPrefix = 'a'.repeat(100);
-      const result = completionEngine.completeCommand(longPrefix, 'ja');
+      const result = completionEngine.completeCommand(longPrefix);
       expect(result.ok).toBe(true);
     });
 
     it('should handle special characters in input', () => {
       const specialChars = ['@', '#', '$', '/', '\\', '*'];
       specialChars.forEach((char) => {
-        const result = completionEngine.completeCommand(char, 'ja');
+        const result = completionEngine.completeCommand(char);
         expect(result.ok).toBe(true);
       });
     });

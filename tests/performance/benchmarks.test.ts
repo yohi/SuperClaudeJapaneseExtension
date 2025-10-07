@@ -2,25 +2,35 @@ import { performance } from 'perf_hooks';
 import { I18nManager } from '../../src/i18n/i18nManager';
 import { HintProvider } from '../../src/hint/hintProvider';
 import { CompletionEngine } from '../../src/completion/completionEngine';
-import { CacheManager } from '../../src/cache/cacheManager';
+import { CommandMetadataLoader } from '../../src/metadata/commandMetadataLoader';
+import * as path from 'path';
 
 describe('Performance Benchmarks', () => {
   let i18nManager: I18nManager;
   let hintProvider: HintProvider;
   let completionEngine: CompletionEngine;
-  let cacheManager: CacheManager;
+  let metadataLoader: CommandMetadataLoader;
+  const translationsDir = path.join(__dirname, '../..', 'translations');
+  const fixturesDir = path.join(__dirname, '../fixtures/commands');
 
-  beforeAll(() => {
-    cacheManager = new CacheManager();
-    i18nManager = new I18nManager();
-    hintProvider = new HintProvider(i18nManager, cacheManager);
-    completionEngine = new CompletionEngine(i18nManager);
+  beforeAll(async () => {
+    i18nManager = new I18nManager(translationsDir);
+    await i18nManager.initialize('ja');
+
+    metadataLoader = new CommandMetadataLoader({
+      maxCacheSize: 100,
+      cacheTTL: 3600000,
+    });
+    await metadataLoader.loadCommandsFromDirectory(fixturesDir);
+
+    hintProvider = new HintProvider(i18nManager, metadataLoader);
+    completionEngine = new CompletionEngine(metadataLoader, i18nManager);
   });
 
   describe('Hint Display Performance', () => {
     it('should display command hints within 100ms (cold start)', () => {
       const start = performance.now();
-      const result = hintProvider.generateCommandHint('build', 'ja');
+      const result = hintProvider.generateCommandHint('build');
       const duration = performance.now() - start;
 
       expect(result.ok).toBe(true);
@@ -30,10 +40,10 @@ describe('Performance Benchmarks', () => {
 
     it('should display command hints within 10ms (cache hit)', () => {
       // Warm up cache
-      hintProvider.generateCommandHint('build', 'ja');
+      hintProvider.generateCommandHint('build');
 
       const start = performance.now();
-      const result = hintProvider.generateCommandHint('build', 'ja');
+      const result = hintProvider.generateCommandHint('build');
       const duration = performance.now() - start;
 
       expect(result.ok).toBe(true);
@@ -43,7 +53,7 @@ describe('Performance Benchmarks', () => {
 
     it('should display flag hints within 100ms', () => {
       const start = performance.now();
-      const result = hintProvider.generateFlagHint('think', 'ja');
+      const result = hintProvider.generateFlagHint('think');
       const duration = performance.now() - start;
 
       expect(result.ok).toBe(true);
@@ -114,7 +124,7 @@ describe('Performance Benchmarks', () => {
   describe('Language Switching Performance', () => {
     it('should switch languages within 150ms', () => {
       // Warm up with Japanese
-      hintProvider.generateCommandHint('build', 'ja');
+      hintProvider.generateCommandHint('build');
 
       // Switch to English
       const start = performance.now();
@@ -150,7 +160,7 @@ describe('Performance Benchmarks', () => {
       let cacheHits = 0;
 
       // Warm up cache
-      uniqueCommands.forEach((cmd) => hintProvider.generateCommandHint(cmd, 'ja'));
+      uniqueCommands.forEach((cmd) => hintProvider.generateCommandHint(cmd));
 
       // Perform operations
       for (let i = 0; i < operations; i++) {
@@ -161,7 +171,7 @@ describe('Performance Benchmarks', () => {
           cacheHits++;
         }
 
-        hintProvider.generateCommandHint(cmd, 'ja');
+        hintProvider.generateCommandHint(cmd);
       }
 
       const hitRate = (cacheHits / operations) * 100;
@@ -175,12 +185,12 @@ describe('Performance Benchmarks', () => {
 
       // Fill cache with 100 entries
       for (let i = 0; i < 100; i++) {
-        largeHintProvider.generateCommandHint(`cmd${i}`, 'ja');
+        largeHintProvider.generateCommandHint(`cmd${i}`);
       }
 
       // Measure performance after saturation
       const start = performance.now();
-      largeHintProvider.generateCommandHint('build', 'ja');
+      largeHintProvider.generateCommandHint('build');
       const duration = performance.now() - start;
 
       expect(duration).toBeLessThan(100);
@@ -194,7 +204,7 @@ describe('Performance Benchmarks', () => {
 
       // Perform various operations
       for (let i = 0; i < 1000; i++) {
-        hintProvider.generateCommandHint('build', 'ja');
+        hintProvider.generateCommandHint('build');
         completionEngine.completeCommand('bu', 'ja');
         completionEngine.completeFlag('--th', 'ja');
       }
@@ -218,7 +228,7 @@ describe('Performance Benchmarks', () => {
         promises.push(
           Promise.resolve().then(() => {
             const opStart = performance.now();
-            hintProvider.generateCommandHint('build', 'ja');
+            hintProvider.generateCommandHint('build');
             return performance.now() - opStart;
           })
         );
