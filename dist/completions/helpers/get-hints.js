@@ -82,10 +82,11 @@ async function initializeCompletionEngine() {
     });
     // TODO: コマンドメタデータを実際のコマンドディレクトリから読み込む
     // 現時点ではダミーデータを使用
+    // 開発・デプロイカテゴリー
     metadataLoader.registerCommand({
         name: 'build',
         description: 'Framework-detecting project builder',
-        category: 'Development',
+        category: '開発・デプロイ',
         flags: [
             { name: 'think', description: 'Enable thinking mode' },
             { name: 'plan', description: 'Enable planning mode' },
@@ -94,12 +95,39 @@ async function initializeCompletionEngine() {
     metadataLoader.registerCommand({
         name: 'implement',
         description: 'Feature and code implementation',
-        category: 'Development',
+        category: '開発・デプロイ',
     });
+    metadataLoader.registerCommand({
+        name: 'test',
+        description: 'Execute tests with coverage analysis',
+        category: '開発・デプロイ',
+    });
+    // 分析・調査カテゴリー
     metadataLoader.registerCommand({
         name: 'analyze',
         description: 'Code quality and security analysis',
-        category: 'Analysis',
+        category: '分析・調査',
+    });
+    metadataLoader.registerCommand({
+        name: 'troubleshoot',
+        description: 'Diagnose and resolve issues',
+        category: '分析・調査',
+    });
+    metadataLoader.registerCommand({
+        name: 'explain',
+        description: 'Provide clear explanations of code',
+        category: '分析・調査',
+    });
+    // 品質・強化カテゴリー
+    metadataLoader.registerCommand({
+        name: 'improve',
+        description: 'Apply systematic improvements',
+        category: '品質・強化',
+    });
+    metadataLoader.registerCommand({
+        name: 'cleanup',
+        description: 'Clean up code and remove dead code',
+        category: '品質・強化',
     });
     const completionEngine = new completionEngine_1.CompletionEngine(metadataLoader, i18nManager);
     return completionEngine;

@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-08
+
+### Added
+- コマンド説明の自動日本語化スクリプト (`npm run apply`)
+- `/sc` コマンド（24個）の日本語翻訳を追加
+- `/kiro` コマンド（10個）の日本語翻訳を追加
+- `translations/ja/commands.json` に全コマンドの翻訳を追加
+- コマンド固有のオプション説明セクションを追加
+- 共通オプション説明セクションを追加（全コマンドで使用可能な `--plan`, `--think`, `--uc` など9つのフラグ）
+- `translations/ja/flags.json` から共通フラグの日本語説明を自動取得
+
+### Changed
+- `~/.claude/commands/` のコマンドファイルの description フィールドを日本語化
+- Claude Code 起動時のコマンド一覧表示が日本語で表示されるように改善
+- コマンドファイルに「オプション」と「共通オプション」セクションを自動追加
+
+### Technical
+- `src/scripts/apply-translations.ts` を追加・拡張
+  - コマンド固有オプションの説明生成機能
+  - 共通フラグ説明セクション生成機能
+  - `flags.json` からの翻訳データ読み込み
+- `package.json` に `apply` および `apply-translations` スクリプトを追加
+- `translations/ja/commands.json` にコマンド固有オプションの説明を追加
+
+### Documentation
+- README.md にオプション説明機能の詳細を追加
+  - コマンド固有オプションと共通フラグの説明セクション
+  - 生成される内容の具体例を追加
+- TRANSLATION_GUIDE.md を拡張
+  - `commands.json` の `options` フィールドの説明を追加
+  - `flags.json` による共通オプションセクション自動生成の説明を追加
+  - オプション翻訳の適用方法と適用例を追加
+
 ## [Unreleased]
 
 ### Added

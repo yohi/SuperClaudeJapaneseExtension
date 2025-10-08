@@ -74,11 +74,17 @@ translations/
         "argument1": "引数1の説明",
         "argument2": "引数2の説明"
       },
-      "example": "使用例: claude /your-new-command [argument1] --flag"
+      "options": {
+        "--flag1": "フラグ1の説明",
+        "--flag2 <value>": "値を受け取るフラグの説明"
+      },
+      "example": "使用例: claude /your-new-command [argument1] --flag1"
     }
   }
 }
 ```
+
+**注意**: `options` フィールドはコマンド固有のオプション/フラグの説明を定義します。`npm run apply` を実行すると、コマンドファイルに「オプション」セクションとして追加されます。
 
 #### 3. 英語フォールバックを追加（オプションだが推奨）
 
@@ -96,7 +102,11 @@ translations/
         "argument1": "Description of argument 1",
         "argument2": "Description of argument 2"
       },
-      "example": "Usage: claude /your-new-command [argument1] --flag"
+      "options": {
+        "--flag1": "Description of flag 1",
+        "--flag2 <value>": "Description of flag with value"
+      },
+      "example": "Usage: claude /your-new-command [argument1] --flag1"
     }
   }
 }
@@ -128,7 +138,13 @@ translations/
       "arguments": {
         "target": "ビルド対象を指定（例: production, development, staging）"
       },
-      "example": "使用例: claude /build production --plan"
+      "options": {
+        "--type <value>": "ビルドタイプを指定（dev/prod/test）",
+        "--clean": "ビルド前にクリーンアップを実行",
+        "--optimize": "ビルド成果物を最適化",
+        "--verbose": "最大限の詳細と説明を表示"
+      },
+      "example": "使用例: claude /build production --plan --optimize"
     }
   }
 }
@@ -137,6 +153,8 @@ translations/
 ---
 
 ## 新規フラグの翻訳追加
+
+`flags.json` は全コマンドで共通して使用可能なフラグの翻訳を定義します。`npm run apply` を実行すると、すべてのコマンドファイルに「共通オプション」セクションとして自動的に追加されます。
 
 ### 手順
 
@@ -189,6 +207,21 @@ translations/
     }
   }
 }
+```
+
+#### 共通オプションセクションの自動生成
+
+`npm run apply` を実行すると、`flags.json` に定義されたすべてのフラグが各コマンドファイルの「共通オプション」セクションに以下のような形式で追加されます：
+
+```markdown
+## 共通オプション
+
+すべてのコマンドで使用可能な共通フラグ：
+
+- `--plan` - 実行前に計画を表示 - コード変更前に実行内容を確認
+- `--think` - 計画に加えて詳細な分析を表示 - 問題解決プロセスを可視化
+- `--uc` (または `--ultracompressed`) - トークン使用を30-50%削減
+  （以下、全42個のフラグが続く）
 ```
 
 ### エイリアス付きフラグの例
@@ -261,6 +294,67 @@ translations/
 ```
 
 **注意**: `{{variable}}` 記法は動的な値の挿入に使用されます。
+
+---
+
+## オプション翻訳の実際の適用
+
+### コマンドファイルへの適用
+
+翻訳データを準備したら、以下のコマンドでコマンドファイルに適用します：
+
+```bash
+npm run apply
+```
+
+このコマンドは `src/scripts/apply-translations.ts` を実行し、以下の処理を行います：
+
+1. `translations/ja/commands.json` から各コマンドの翻訳を読み込み
+2. `translations/ja/flags.json` から共通フラグの翻訳を読み込み
+3. 各コマンドファイル（`~/.claude/commands/sc/*.md` および `~/.claude/commands/kiro/*.md`）に対して：
+   - YAML frontmatter の `description` フィールドを日本語化
+   - コマンド固有のオプションがある場合、「オプション」セクションを追加
+   - すべてのコマンドに「共通オプション」セクションを追加
+
+### 適用例
+
+**変更前のコマンドファイル** (`~/.claude/commands/sc/build.md`):
+```markdown
+---
+name: build
+description: Build project with framework detection
+category: utility
+---
+
+# Build command content...
+```
+
+**変更後のコマンドファイル**:
+```markdown
+---
+name: build
+description: インテリジェントなエラーハンドリングと最適化によるプロジェクトのビルド、コンパイル、パッケージング
+category: utility
+---
+
+# Build command content...
+
+## オプション
+
+コマンド固有のオプション：
+
+- `--type <value>` - ビルドタイプを指定（dev/prod/test）
+- `--clean` - ビルド前にクリーンアップを実行
+- `--optimize` - ビルド成果物を最適化
+
+## 共通オプション
+
+すべてのコマンドで使用可能な共通フラグ：
+
+- `--plan` - 実行前に計画を表示 - コード変更前に実行内容を確認
+- `--think` - 計画に加えて詳細な分析を表示 - 問題解決プロセスを可視化
+（以下省略）
+```
 
 ---
 
