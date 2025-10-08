@@ -73,7 +73,7 @@ npm run format
 
 ### データフロー
 
-```
+```text
 Shell (bash/zsh)
   ↓
 get-hints.ts (CLIヘルパー)

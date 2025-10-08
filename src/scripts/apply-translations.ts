@@ -105,7 +105,7 @@ function updateCommandFile(
 
   // YAML frontmatter の description を置き換える
   content = content.replace(
-    /^description: ".*"$/m,
+    /^description:\s*(?:"[^"]*"|'[^']*'|.*)$/m,
     `description: "${description}"`
   );
 
